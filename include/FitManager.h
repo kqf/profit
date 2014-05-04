@@ -9,8 +9,10 @@
 #define	FITMANAGER_H
 
 #include "PhysicalProcess.h"
+#include "TheoreticalModel.h"
 
 #include <vector>
+
 #include <TGraphErrors.h>
 #include <TCanvas.h>
 
@@ -29,15 +31,18 @@ public:
 private:
     void FillProcess(PhysicalProcess & proc); 
     void CreateGraph(PhysicalProcess & proc); 
+    void DrawFitFunction(PhysicalProcess & proc); 
+
 
     std::vector<double>     fit_parameters; 
     std::vector<PhysicalProcess> processes; 
     std::vector<TGraphErrors *>     graphs; 
     TCanvas * main_canvas; 
     const char * root_file; 
-
-    
-
+    TheoreticalModel currentModel; 
+    TF1 * fitFunction; 
+    double ds_pp_energy;
+    double ds_pbp_energy;
 };
 
 #endif	/* FITMANAGER_H */
