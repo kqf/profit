@@ -64,13 +64,17 @@ void FitManager::FillProcess(PhysicalProcess & proc)
 void FitManager::GetParameters()
 {
     // TODO: write nice input handler
-    double tmp[] = {40.3043, 1.10517, 0.35, 2.32537, 117.221, 0.791348, 1.31638, 1.98679, 102.76, 0.5, 1.2, 8.80651}; 
-    int tmp_length = sizeof(tmp) / sizeof(double); 
-    fit_parameters = std::vector<double>(tmp, tmp + tmp_length);
-    
-    assert(fit_parameters.size() == currentModel.npars); 
+    double inp[] = { 40.3043,  1.10517,    0.35, 2.32537,  1,
+                      117.221, 0.791348, 1.31638, 1.98679,  1,
+                       102.76,      0.5,     1.2, 8.80651, -1, 0.160351 };
 
-    fitFunction = new TF1("fitFunction",&currentModel, &TheoreticalModel::DrawFunction, 0, 2000, currentModel.npars + 1); 
+    int inp_length = sizeof(inp) / sizeof(double); 
+    std::cout << "Number of parameters " << inp_length << std::endl;
+    fit_parameters = std::vector<double>(inp, inp + inp_length);
+    currentModel = TheoreticalModel(inp, inp_length); 
+
+    // TODO: remove this part into Draw approximation!!!
+    fitFunction = new TF1("fitFunction",&currentModel, &TheoreticalModel::DrawFunction, 2, 20000, currentModel.npars + 1); 
     fitFunction->SetLineColor(37);
 }
 
@@ -92,7 +96,8 @@ void FitManager::DrawApproximation()
 	    gPad->SetLogy(); 
 	graphs[i]->Draw("AP");
 
-	DrawFitFunction(processes[i]); 
+	if(i == 0)
+	    DrawFitFunction(processes[i]); 
     }
     main_canvas->Update(); 
     main_canvas->Show(); 
@@ -137,8 +142,12 @@ void FitManager::CreateGraph(PhysicalProcess& proc)
 void FitManager::DrawFitFunction(PhysicalProcess& proc)
 {
     assert(fitFunction != 0); 
-    int shift = 1; 
-    fitFunction->FixParameter(0, proc.dataCode);
+
+    int shift = 2; 
+    // TODO: Remove this part
+    double t = 0; 
+    fitFunction->FixParameter(0, t); 
+    fitFunction->FixParameter(1, proc.dataCode);
     for(int i = 0; i < fit_parameters.size(); ++i)
 	fitFunction->FixParameter(i + shift, fit_parameters[i]); 
     fitFunction->Draw("same"); 
