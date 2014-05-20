@@ -18,7 +18,6 @@ void TheoreticalModel::SetParameters(const double* par)
     poles = ReggePole::MakePoles(par, npars - 1); 
     // TODO: check correctness of 2 * i * lambda
     ilambda = complexd(0, 2 * par[npars - 1]); 
-    SetProcessType(par[npars]); 
 }
 
 double TheoreticalModel::GetTheoreticalValue(const double& energy
@@ -34,9 +33,25 @@ double TheoreticalModel::GetTheoreticalValue(const double& energy
     
     double mp_squared = mp * mp; 
     double flux = sqrt( pow(s - 2 * mp_squared, 2) - 4 * pow(mp_squared, 2) ); 
-    double observable; 
-    observable = 0; 
-    observable =  (k / flux) * (8 * M_PI * s) * GetA(true).imag();
+    double observable = 0; 
+
+    int observableType = int(processType / 100); 
+    complexd A = GetA(observableType == 1);  // only 110 and 111 need only image part
+    switch(observableType)
+    {
+	case 1:
+	    observable =  (k / flux) * (8 * M_PI * s) * A.imag();
+	    break; 
+	case 2:
+	    observable = A.real() / A.imag(); 
+	    break; 
+        case 3:
+	    // TODO: Check wheather this formula is valid
+	    observable = std::norm(A) * k * 4 * M_PI ;//  * (8 * M_PI * s) * k / ( 16 * M_PI * s  )  ; 
+	    break;
+	default:
+	    assert(true && "Unexpected observable type"); 
+    }
 
     return observable; 
 }
@@ -113,7 +128,7 @@ double TheoreticalModel::Geta(double q)
     complexd result = 0;
     
     for(int i = 0; i < poles.size(); ++i)
-	result += poles[i].Amplitude(s, q * q);
+	result += poles[i].Amplitude(s, q * q, processType % 10);
     
     double integrand =  q * gsl_sf_bessel_J0( q * b); 
 
@@ -123,20 +138,17 @@ double TheoreticalModel::Geta(double q)
     return   result.real() * integrand;
 }
 
-
 double TheoreticalModel::DrawFunction(double* x, double* par)
 {
-    double energy = x[0]; 
-    double t = par[0]; 
+    SetProcessType((int)par[1]); 
+    bool needst = processType / 100 == 3; 
 
-    SetProcessType(par[1]); 
+    double energy = needst ? par[0] : x[0]; 
+    double t =  ( !needst )? par[0] : x[0]; 
+
     SetParameters(par + 2); 
-   
 
-    if (energy < 2)
-	return 0; 
     double result = GetTheoreticalValue(energy, t);  
-    std::cout << "Result is " << result << " energy " << energy << std::endl; 
     return result; 
 }
 
@@ -144,7 +156,6 @@ double TheoreticalModel::DrawFunction(double* x, double* par)
 
 double g(double x, void * params)
 {
-  //std::cout << "x " << x << std::endl;
   TheoreticalModel * computor = static_cast<TheoreticalModel *> (params);
   return computor -> Geta(x);
 }

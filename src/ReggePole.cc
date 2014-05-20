@@ -10,10 +10,11 @@
 #include <iostream>
 
 
-ReggePole::complexd ReggePole::Amplitude(const double & s, const double & t) const
+ReggePole::complexd ReggePole::Amplitude(const double & s, const double & t, bool anti) const
 {
     complexd i(0, 1);
-    return coef * g * pow(-1. * i * s, a0 - ap * t) * exp(-B * t);
+    double crossing = (anti && isOdd) ? -1 : 1; 
+    return coef * g * pow(-1. * i * s, a0 - ap * t) * exp(-B * t) * crossing;
 }
 
 // This funciton creates needed number of poles:

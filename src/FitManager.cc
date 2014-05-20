@@ -74,7 +74,7 @@ void FitManager::GetParameters()
     currentModel = TheoreticalModel(inp, inp_length); 
 
     // TODO: remove this part into Draw approximation!!!
-    fitFunction = new TF1("fitFunction",&currentModel, &TheoreticalModel::DrawFunction, 2, 20000, currentModel.npars + 1); 
+    fitFunction = new TF1("fitFunction",&currentModel, &TheoreticalModel::DrawFunction, 2, 30000, currentModel.npars + 2); 
     fitFunction->SetLineColor(37);
 }
 
@@ -96,10 +96,9 @@ void FitManager::DrawApproximation()
 	    gPad->SetLogy(); 
 	graphs[i]->Draw("AP");
 
-	if(i == 0)
+//	if(i <= 3)
 	    DrawFitFunction(processes[i]); 
     }
-    main_canvas->Update(); 
     main_canvas->Show(); 
 }
 
@@ -144,12 +143,23 @@ void FitManager::DrawFitFunction(PhysicalProcess& proc)
     assert(fitFunction != 0); 
 
     int shift = 2; 
-    // TODO: Remove this part
-    double t = 0; 
-    fitFunction->FixParameter(0, t); 
-    fitFunction->FixParameter(1, proc.dataCode);
+    if(proc.dataCode / 100 == 3)
+    {
+	fitFunction->SetRange(0.1 ,10); 
+	fitFunction->SetParameter(0, proc.dataCode % 10 ? ds_pbp_energy: ds_pp_energy); 
+    }
+    else
+    {
+	fitFunction->SetRange(5, 3e+5); 
+	fitFunction->SetParameter(0, 0);  // t = 0
+    }
+    
+    fitFunction->SetParameter(1, proc.dataCode);
+
     for(int i = 0; i < fit_parameters.size(); ++i)
 	fitFunction->FixParameter(i + shift, fit_parameters[i]); 
-    fitFunction->Draw("same"); 
+
+    fitFunction->Draw("same");  // these 2 linesk needs to be run together!!
+    main_canvas->Update(); 
 }
 

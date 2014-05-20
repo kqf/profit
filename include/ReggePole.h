@@ -17,7 +17,7 @@ private:
     typedef std::complex<double > complexd; 
 
 public:
-    complexd Amplitude(const double & s, const double & t) const; 
+    complexd Amplitude(const double & s, const double & t, bool) const; 
     static std::vector<ReggePole > MakePoles(const double *, const int &); 
 
 private:
@@ -27,7 +27,7 @@ private:
     enum {nImputParamets = 5}; 
     ReggePole(const double & a, const double & b,
               const double & c, const double & d, const bool &odd):
-	      g(a), a0(b), ap(c), B(d)
+	      g(a), a0(b), ap(c), B(d), isOdd(odd)
     {
 	complexd i(0, 1); 
 	coef = odd ? -i : -1; 
@@ -38,6 +38,7 @@ private:
     double a0;
     double ap;
     double B; 
+    bool isOdd; 
 };
 
 #endif	/* REGGEPOLE_H */
