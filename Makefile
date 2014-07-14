@@ -4,10 +4,10 @@ search_wildcard := $(addsuffix /*.cc,$(source_dirs))
 root_flags :=`root-config --cflags --libs`
 
 profit:main.o $(notdir $(patsubst   %.cc,%.o,$(wildcard   $(search_wildcard))))
-	g++ $^ -o $@ $(root_flags) -lgsl -lgslcblas
+	g++ $^ -o $@ $(root_flags) -lgsl -lgslcblas -lMinuit
 VPATH   := $(source_dirs)
 %.o: %.cc
-	g++ -c -MD $(addprefix -I ,$(include_dirs)) $< $(root_flags)
+	g++ -c -MD $(addprefix -I ,$(include_dirs)) $< $(root_flags) -lMinuit
 include $(wildcard   *.d)
 .PHONY: clean
 clean:
