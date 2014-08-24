@@ -26,12 +26,15 @@ private:
     typedef std::complex<double > complexd; 
 public:
     TheoreticalModel():npars(0) {} ;
+//    TheoreticalModel(const TheoreticalModel & other);
+//    TheoreticalModel & operator=(const TheoreticalModel & other);
+
     TheoreticalModel(const double * ,int);
 
     void SetParameters(const double *); 
     void SetProcessType(const int & t)  { processType = t; }
 
-    double GetTheoreticalValue(const double & x, const double & y); 
+    double GetTheoreticalValue(double  x, double  y); 
     complexd GetA(bool); 
     double GetH(double); 
     double Geta(double); 

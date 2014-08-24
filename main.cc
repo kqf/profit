@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <TApplication.h>
+#include <TStopwatch.h>
 
 
 
@@ -32,10 +33,16 @@ int main(int argc, char** argv)
 
     std::vector<PhysicalProcess> input_vector(input_array, input_array + sizeof(input_array) / sizeof(PhysicalProcess));
 
-    FitManager manager;
+    FitManager & manager =   FitManager::GetFitManager();
     manager.GetData("Data.root", input_vector); 
     manager.GetParameters(); 
     manager.DrawApproximation(); 
+
+//    TStopwatch timer; 
+//    timer.Start(); 
+//    std::cout << "Here is unminimized chi2 " << manager.chi2(0) << std::endl;
+//    timer.Stop(); 
+//    std::cout << "It takes " << timer.RealTime() / 60 << " to calculate chi^2." << std::endl; 
 
 
     app->Run();

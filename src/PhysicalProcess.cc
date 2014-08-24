@@ -7,7 +7,8 @@
 
 #include "PhysicalProcess.h"
 
-PhysicalProcess::PhysicalProcess(const char* process_name, int code, const char* graph_title, int points)
+PhysicalProcess::PhysicalProcess(const char* process_name, int code, const char* graph_title, int points):
+	chi2(0)
 {
     name = process_name;
     dataCode = code; 

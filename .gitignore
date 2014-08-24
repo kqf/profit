@@ -3,4 +3,4 @@
 *.root
 profit
 nbproject/*
-
+*.out

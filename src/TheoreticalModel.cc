@@ -13,15 +13,41 @@ TheoreticalModel::TheoreticalModel(const double * par, int n):npars(n)
     SetParameters(par); 
 }
 
-void TheoreticalModel::SetParameters(const double* par)
+//TheoreticalModel::TheoreticalModel(const TheoreticalModel& other)
+//{
+//    std::cout << "Hi" << std::endl; 
+//}
+
+
+//TheoreticalModel & TheoreticalModel::operator =(const TheoreticalModel& other)
+//{
+//    if(this == &other)
+//	return *this; 
+//    
+//    std::cout << "Hello world" << std::endl; 
+//    this->ilambda = other.ilambda; 
+//    this->b = other.b;
+//    this->calculateImagH = other.calculateImagH;
+//    this->calculateImagh = other.calculateImagh; 
+//    this->npars = other.npars; 
+//    this->processType = other.processType;
+//    this->s = other.s;
+//    this->t = other.t;
+//    this->poles = other.poles; 
+
+//    return * this; 
+//}
+
+
+void TheoreticalModel::SetParameters(const double * par)
 {
     poles = ReggePole::MakePoles(par, npars - 1); 
     // TODO: check correctness of 2 * i * lambda
     ilambda = complexd(0, 2 * par[npars - 1]); 
 }
 
-double TheoreticalModel::GetTheoreticalValue(const double& energy
-					    ,const double& transverse_momentum)
+double TheoreticalModel::GetTheoreticalValue(double  energy
+					    ,double  transverse_momentum)
 {
     assert(npars != 0 && "Parameters are not set");
     s = energy * energy; 
@@ -151,8 +177,6 @@ double TheoreticalModel::DrawFunction(double* x, double* par)
     double result = GetTheoreticalValue(energy, t);  
     return result; 
 }
-
-
 
 double g(double x, void * params)
 {
