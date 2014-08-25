@@ -13,32 +13,6 @@ TheoreticalModel::TheoreticalModel(const double * par, int n):npars(n)
     SetParameters(par); 
 }
 
-//TheoreticalModel::TheoreticalModel(const TheoreticalModel& other)
-//{
-//    std::cout << "Hi" << std::endl; 
-//}
-
-
-//TheoreticalModel & TheoreticalModel::operator =(const TheoreticalModel& other)
-//{
-//    if(this == &other)
-//	return *this; 
-//    
-//    std::cout << "Hello world" << std::endl; 
-//    this->ilambda = other.ilambda; 
-//    this->b = other.b;
-//    this->calculateImagH = other.calculateImagH;
-//    this->calculateImagh = other.calculateImagh; 
-//    this->npars = other.npars; 
-//    this->processType = other.processType;
-//    this->s = other.s;
-//    this->t = other.t;
-//    this->poles = other.poles; 
-
-//    return * this; 
-//}
-
-
 void TheoreticalModel::SetParameters(const double * par)
 {
     poles = ReggePole::MakePoles(par, npars - 1); 
@@ -154,7 +128,7 @@ double TheoreticalModel::Geta(double q)
     complexd result = 0;
     
     for(int i = 0; i < poles.size(); ++i)
-	result += poles[i].Amplitude(s, q * q, processType % 10);
+	result += poles[i]->Amplitude(s, q * q, processType % 10);
     
     double integrand =  q * gsl_sf_bessel_J0( q * b); 
 

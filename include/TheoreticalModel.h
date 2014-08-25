@@ -10,6 +10,7 @@
 
 #include <complex>
 #include <vector>
+#include <cassert>
 
 #include <gsl/gsl_integration.h>
 #include <gsl/gsl_sf_bessel.h>
@@ -45,7 +46,7 @@ public:
     int npars; 
 private:
 
-    std::vector<ReggePole > poles; 
+    std::vector<AbstractPole * > poles; 
     complexd ilambda; 
 
     double b, s, t; 

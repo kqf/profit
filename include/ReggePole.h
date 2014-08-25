@@ -12,33 +12,32 @@
 #include <vector>
 #include <cassert>
 
-class ReggePole {
+#include "AbstractPole.h"
+
+class ReggePole : public AbstractPole {
 private:
     typedef std::complex<double > complexd; 
 
 public:
-    complexd Amplitude(const double & s, const double & t, bool) const; 
-    static std::vector<ReggePole > MakePoles(const double *, const int &); 
+//    complexd Amplitude(const double & s, const double & t, bool) const; 
+    static std::vector<AbstractPole *> MakePoles(const double *, const int &); 
 
 private:
     // this is number of input parameters in constructor!
     // if you modify the constructor --- you should modify 
     // this number too !!
     enum {nImputParamets = 5}; 
-    ReggePole(const double & a, const double & b,
-              const double & c, const double & d, const bool &odd):
-	      g(a), a0(b), ap(c), B(d), isOdd(odd)
-    {
-	complexd i(0, 1); 
-	coef = odd ? -i : -1; 
-    }
 
-    complexd coef; 
+    ReggePole(const double & a, const double & b,
+              const double & c, const double & d, const bool & odd):
+	      g(a), a0(b), ap(c), B(d), AbstractPole(odd) {}
+
+    virtual complexd PureAmplitude(const double & s, const double & t) const ; 
+
     double g;
     double a0;
     double ap;
     double B; 
-    bool isOdd; 
 };
 
 #endif	/* REGGEPOLE_H */
