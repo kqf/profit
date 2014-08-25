@@ -6,6 +6,7 @@
  */
 
 #include "TheoreticalModel.h"
+#include "ModifiedPole.h"
 
 #include <iostream>
 TheoreticalModel::TheoreticalModel(const double * par, int n):npars(n)
@@ -15,7 +16,12 @@ TheoreticalModel::TheoreticalModel(const double * par, int n):npars(n)
 
 void TheoreticalModel::SetParameters(const double * par)
 {
-    poles = ReggePole::MakePoles(par, npars - 1); 
+    ModifiedPole * pomeron = new ModifiedPole(par[0], par[1], par[2], par[3],
+	                                      par[4], par[5], par[6] < 0); 
+
+    poles = ReggePole::MakePoles(par + 7, npars - 1 - 7); 
+    poles.push_back(pomeron);
+
     // TODO: check correctness of 2 * i * lambda
     ilambda = complexd(0, 2 * par[npars - 1]); 
 }

@@ -11,7 +11,7 @@
 #include <complex>
 
 class AbstractPole {
-private:
+protected:
     typedef std::complex<double > complexd; 
 
 public:

@@ -17,8 +17,6 @@
 #include <functional>
 #include <omp.h>
 
-//using std::bind1st;
-//using std::mem_fun; 
 
 FitManager * FitManager::_instance = 0; 
 
@@ -108,53 +106,53 @@ void FitManager::GetParameters()
 {
     // TODO: write nice input handler
     double vals[] = {
-	               40.3043,  1.10517,    0.35, 2.32537,  1,
-                       117.221, 0.791348, 1.31638, 1.98679,  1,
-                       102.76,      0.5,      1.2, 8.80651, -1, 0.160351 
+	               0,  1.10517,    0,    100,   1,  4,   1,
+	               40.3043,  1.10517,    0.35, 2.32537,     1,
+                       117.221, 0.791348, 1.31638, 1.98679,     1,
+                       102.76,      0.5,      1.2, 8.80651,    -1, 0.160351 
                    }; 
 
     // step sizes
     double sts[] = {
-	               0.1,  0.01, 0.01, 0.1,  0.1, 
-                       0.1,  0.01, 0.01, 0.1,  0.1, 
-                       0.1,  0.01, 0.01, 0.1,  0.1, 0.1
+	               0.1,  0.01, 0.01, 0.1,  0.1, 0.1, 0, 
+	               0.1,  0.01, 0.01, 0.1,  0, 
+                       0.1,  0.01, 0.01, 0.1,  0, 
+                       0.1,  0.01, 0.01, 0.1,  0, 0.1
                    }; 
 
     // lower bounds
    double as[] = {
+	               0,  1.05,  0,  0.078, 0,  4,  1, 
 	               0,  1.05, 0.25, 0,  1, 
                        0,  0.50, 0.80, 0,  1, 
                        0,  0.42, 0.80, 0, -1, 0
                   }; 
    // upper bounds 
    double bs[] = {
+	               0.1e+4,  1.25, 10,  0.5, 10,  4,  1, 
 	               0.1e+4,  1.25, 0.35, 10,  1, 
                        0.1e+4,  0.80, 1.40, 10,  1, 
                        0.1e+4,  0.50, 1.20, 15, -1, 5
                   }; 
 
    const char * names[] = {
+	               "gp_p", "alpha_p0", "gamma", "t0", "tau", "nu",  "pODD", 
 	               "g_p",  "alpha_p0", "alpha_p'", "B_p",  "pODD", 
 	               "g_f",  "alpha_f0", "alpha_f'", "B_f",  "fODD", 
 	               "g_w",  "alpha_w0", "alpha_w'", "B_w",  "wODD", "lambda"
                   }; 
 
 
-    int inp_length = sizeof(vals) / sizeof(double); 
-//    std::cout << "Number of parameters " << inp_length << std::endl;
-
-    assert(fit_parameters.size() == 0 && "You are trying add new parameters in irregular place"); 
-    for (int i = 0; i < inp_length; ++i)
-	fit_parameters.push_back( 
+   int inp_length = sizeof(vals) / sizeof(double); 
+   assert(fit_parameters.size() == 0 && "You are trying add new parameters in irregular place"); 
+   for (int i = 0; i < inp_length; ++i)
+       fit_parameters.push_back( 
 		ModelParameter(names[i], vals[i], sts[i], as[i], bs[i]) ); 
 
-    // Why this is here ?
-//    std::cout << "Start" << std::endl; 
-    currentModel = TheoreticalModel(vals, inp_length); 
-//    std::cout << "end" << std::endl; 
-    // TODO: remove this part into Draw approximation!!!
-    fitFunction = new TF1("fitFunction",&currentModel, &TheoreticalModel::DrawFunction, 2, 30000, currentModel.npars + 2); 
-    fitFunction->SetLineColor(37);
+   currentModel = TheoreticalModel(vals, inp_length); 
+
+   fitFunction = new TF1("fitFunction",&currentModel, &TheoreticalModel::DrawFunction, 2, 30000, currentModel.npars + 2); 
+   fitFunction->SetLineColor(37);
 }
 
 void FitManager::DrawApproximation()
@@ -299,7 +297,6 @@ double FitManager::chi2(const double * parameters = 0)
 
 	    chi2_per_process += delta * delta; 
 	}
-
 //	std::cout << "Here is my start value : " << chi2_per_process / processes[i].numberOfpoints << std::endl; 
 	result += chi2_per_process; 
     }
