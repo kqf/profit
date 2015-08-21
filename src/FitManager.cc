@@ -106,38 +106,38 @@ void FitManager::GetParameters()
 {
     // TODO: write nice input handler
     double vals[] = {
-	               0,  1.10517,    0,    100,   1,  4,   1,
-	               40.3043,  1.10517,    0.35, 2.32537,     1,
+	               0,  1.10517,   0.1,    0.09,   5,  4,   1,
+	               40.3043,  1.10517,    0.35, 2.32537,    -1,
                        117.221, 0.791348, 1.31638, 1.98679,     1,
-                       102.76,      0.5,      1.2, 8.80651,    -1, 0.160351 
+                       102.76,      0.6,      1.2, 8.80651,    -1, 0.160351 
                    }; 
 
     // step sizes
     double sts[] = {
-	               0.1,  0.01, 0.01, 0.1,  0.1, 0.1, 0, 
+	               0.1,  0.01, 0.01, 0.01,  0.1, 0, 0, 
 	               0.1,  0.01, 0.01, 0.1,  0, 
-                       0.1,  0.01, 0.01, 0.1,  0, 
-                       0.1,  0.01, 0.01, 0.1,  0, 0.1
+                       0.1,  0.001, 0.01, 0.1,  0, 
+                       0.1,  0.001, 0.01, 0.1,  0, 0.1
                    }; 
 
     // lower bounds
    double as[] = {
-	               0,  1.05,  0,  0.078, 0,  4,  1, 
+	         -0.1e+4,  1.05,  0,  0.078, 0,  3,  1, 
 	               0,  1.05, 0.25, 0,  1, 
                        0,  0.50, 0.80, 0,  1, 
-                       0,  0.42, 0.80, 0, -1, 0
+                       0,  0.52, 0.80, 0, -1, 0
                   }; 
    // upper bounds 
    double bs[] = {
 	               0.1e+4,  1.25, 10,  0.5, 10,  4,  1, 
-	               0.1e+4,  1.25, 0.35, 10,  1, 
+	               0.1e+4,  1.25, 0.55, 10,  1, 
                        0.1e+4,  0.80, 1.40, 10,  1, 
-                       0.1e+4,  0.50, 1.20, 15, -1, 5
+                       0.1e+4,  0.80, 1.40, 15, -1, 5
                   }; 
 
    const char * names[] = {
-	               "gp_p", "alpha_p0", "gamma", "t0", "tau", "nu",  "pODD", 
-	               "g_p",  "alpha_p0", "alpha_p'", "B_p",  "pODD", 
+	               "g_p", "alpha_p0", "gamma", "t0", "tau", "nu",  "pODD", 
+	               "g_o",  "alpha_o0", "alpha_o'", "B_o",  "oODD", 
 	               "g_f",  "alpha_f0", "alpha_f'", "B_f",  "fODD", 
 	               "g_w",  "alpha_w0", "alpha_w'", "B_w",  "wODD", "lambda"
                   }; 
@@ -249,7 +249,7 @@ void FitManager::SetupMinimizer()
 {
     int npars = fit_parameters.size(); 
 
-    assert(npars == 0 && "Cannot initialize minimizer with 0 input parameters"); 
+    assert(npars != 0 && "Cannot initialize minimizer with 0 input parameters"); 
     gMinimizer = new TMinuit(npars); 
     gMinimizer->SetFCN(fcn); 
 
@@ -282,23 +282,23 @@ double FitManager::chi2(const double * parameters = 0)
     {
         currentModel.SetProcessType(processes[i].dataCode); 
 //	std::cout << "Processing " << processes[i].dataCode << std::endl; 
-	chi2_per_process = 0; 
+    	chi2_per_process = 0; 
         TheoreticalModel computor(currentModel); 
 
-#pragma omp parallel for firstprivate(computor) reduction(+:chi2_per_process) num_threads(4)
-	for(int j = 0;  j < processes[i].numberOfpoints; ++j)
-	{
-	    const DataPoint  p = processes[i].experimentalPoints[j]; 
-	    if(p.ignore)
-		continue; 
+// #pragma omp parallel for firstprivate(computor) reduction(+:chi2_per_process) num_threads(4)
+    	for(int j = 0;  j < processes[i].numberOfpoints; ++j)
+    	{
+    	    const DataPoint  p = processes[i].experimentalPoints[j]; 
+    	    if(p.ignore)
+        		continue; 
 
             double y =  computor.GetTheoreticalValue(p.energy, p.t);
             double delta =  (p.observable - y)/ p.error ; 
 
-	    chi2_per_process += delta * delta; 
-	}
-//	std::cout << "Here is my start value : " << chi2_per_process / processes[i].numberOfpoints << std::endl; 
-	result += chi2_per_process; 
+    	    chi2_per_process += delta * delta; 
+    	}
+    //	std::cout << "Here is my start value : " << chi2_per_process / processes[i].numberOfpoints << std::endl; 
+    	result += chi2_per_process; 
     }
     return result; 
 }
@@ -313,6 +313,7 @@ void FitManager::PerformMinimization()
     int ierflag = 0; 
     arglist[0] = 500; 
     arglist[1] = 1.; 
-    gMinimizer->mnexcm("MIGRAD", arglist, 2, ierflag);
+    // gMinimizer->mnexcm("MIGRAD", arglist, 2, ierflag);
+    gMinimizer->mnexcm("SHO FCN", arglist, 2, ierflag);
 }
 
