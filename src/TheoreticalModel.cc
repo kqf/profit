@@ -16,11 +16,14 @@ TheoreticalModel::TheoreticalModel(const double * par, int n):npars(n)
 
 void TheoreticalModel::SetParameters(const double * par)
 {
-    ModifiedPole * pomeron = new ModifiedPole(par[0], par[1], par[2], par[3],
-	                                      par[4], par[5], par[6] < 0); 
+    // ModifiedPole * pomeron = new ModifiedPole(par[0], par[1], par[2], par[3], par[4], par[5], par[6] < 0); 
 
-    poles = ReggePole::MakePoles(par + 7, npars - 1 - 7); 
-    poles.push_back(pomeron);
+    // TODO: rewrite it! Should be :
+    // poles = ReggePole::MakePoles(par + pomeron.GetNpars() , npars - 1 - pomeron.GetNpars()); 
+
+    // poles = ReggePole::MakePoles(par + 7, npars - 1 - 7); 
+    poles = ReggePole::MakePoles(par, npars - 1); 
+    // poles.push_back(pomeron);
 
     // TODO: check correctness of 2 * i * lambda
     ilambda = complexd(0, 2 * par[npars - 1]); 
@@ -95,7 +98,7 @@ double TheoreticalModel::BesselTransform(double(*function)(double,void*), bool w
     if(whole_range)
 	gsl_integration_qagiu (&F, 0, precision_abs, precision_rel, workspace, w, &result, &error); 
     else
-        gsl_integration_qags  (&F, 0, 40, precision_abs, precision_rel, workspace, w, &result, &error); 
+        gsl_integration_qags  (&F, 0, 30, precision_abs, precision_rel, workspace, w, &result, &error); 
 
     gsl_integration_workspace_free (w);
     return result;

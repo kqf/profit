@@ -90,12 +90,12 @@ void FitManager::FillProcess(PhysicalProcess & proc)
     dat ->SetBranchAddress("t", &d);
     for (int i = 0 ; i < proc.numberOfpoints; ++i )
     {
-	dat->GetEntry(i);
-	proc.experimentalPoints.push_back(DataPoint((double)a,(double)b,(double)c,(double)d)); 
+    	dat->GetEntry(i);
+    	proc.experimentalPoints.push_back(DataPoint((double)a,(double)b,(double)c,(double)d)); 
 
-	DataPoint & point = proc.experimentalPoints[i]; 
-	if( Cut(point, proc.dataCode) )
-	    point.ignore = true; 
+    	DataPoint & point = proc.experimentalPoints[i]; 
+    	if( Cut(point, proc.dataCode) )
+    	    point.ignore = true; 
     }
 
     delete dat;
@@ -106,38 +106,39 @@ void FitManager::GetParameters()
 {
     // TODO: write nice input handler
     double vals[] = {
-	               0,  1.10517,   0.1,    0.09,   5,  4,   1,
-	               40.3043,  1.10517,    0.35, 2.32537,    -1,
-                       117.221, 0.791348, 1.31638, 1.98679,     1,
-                       102.76,      0.6,      1.2, 8.80651,    -1, 0.160351 
+    	               // 0,  1.10517,   0.1,    0.09,   5,  4,    1,
+    	               40.3043,  1.10517,    0.35, 2.32537,     1,
+                       102.760, 0.791348, 1.31638, 1.98679,     1,
+                       117.221,      0.5,     1.2, 8.80651,    -1,  // 
+                       0.160351                                     // lambda
                    }; 
 
     // step sizes
     double sts[] = {
-	               0.1,  0.01, 0.01, 0.01,  0.1, 0, 0, 
-	               0.1,  0.01, 0.01, 0.1,  0, 
+    	               // 0.1,  0.01,  0.01, 0.0,  0.1, 0, 0, 
+    	               0.1,  0.01,  0.01, 0.1,  0, 
                        0.1,  0.001, 0.01, 0.1,  0, 
                        0.1,  0.001, 0.01, 0.1,  0, 0.1
                    }; 
 
     // lower bounds
    double as[] = {
-	         -0.1e+4,  1.05,  0,  0.078, 0,  3,  1, 
-	               0,  1.05, 0.25, 0,  1, 
+        	         // -0.1e+4,  1.05,  0,  0.078, 0,  3,  1, 
+    	               0,  1.05, 0.25, 0,  1, 
                        0,  0.50, 0.80, 0,  1, 
-                       0,  0.52, 0.80, 0, -1, 0
+                       0,  0.40, 0.80, 0, -1, 0
                   }; 
    // upper bounds 
    double bs[] = {
-	               0.1e+4,  1.25, 10,  0.5, 10,  4,  1, 
-	               0.1e+4,  1.25, 0.55, 10,  1, 
+    	               // 0.1e+4,  1.25, 10,  0.5, 10,  4,  1, 
+    	               0.1e+4,  1.25, 0.55, 10,  1, 
                        0.1e+4,  0.80, 1.40, 10,  1, 
                        0.1e+4,  0.80, 1.40, 15, -1, 5
                   }; 
 
    const char * names[] = {
-	               "g_p", "alpha_p0", "gamma", "t0", "tau", "nu",  "pODD", 
-	               "g_o",  "alpha_o0", "alpha_o'", "B_o",  "oODD", 
+	               // "g_p", "alpha_p0", "gamma", "t0", "tau", "nu",  "pODD", 
+	               "g_p",  "alpha_p0", "alpha_p'", "B_p",  "pODD", 
 	               "g_f",  "alpha_f0", "alpha_f'", "B_f",  "fODD", 
 	               "g_w",  "alpha_w0", "alpha_w'", "B_w",  "wODD", "lambda"
                   }; 
@@ -151,7 +152,7 @@ void FitManager::GetParameters()
 
    currentModel = TheoreticalModel(vals, inp_length); 
 
-   fitFunction = new TF1("fitFunction",&currentModel, &TheoreticalModel::DrawFunction, 2, 30000, currentModel.npars + 2); 
+   fitFunction = new TF1("fitFunction", &currentModel, &TheoreticalModel::DrawFunction, 2, 30000, currentModel.npars + 2); 
    fitFunction->SetLineColor(37);
 }
 
@@ -274,18 +275,18 @@ void FitManager::SetupMinimizer()
 double FitManager::chi2(const double * parameters = 0) 
 {
     if(parameters != 0) 
-	currentModel.SetParameters(parameters);
+    	currentModel.SetParameters(parameters);
 
     double result = 0; 
     double chi2_per_process = 0; 
     for(int i = 0; i < processes.size() ; ++i )
     {
         currentModel.SetProcessType(processes[i].dataCode); 
-//	std::cout << "Processing " << processes[i].dataCode << std::endl; 
+    	std::cout << "Processing " << processes[i].dataCode << std::endl; 
     	chi2_per_process = 0; 
         TheoreticalModel computor(currentModel); 
 
-// #pragma omp parallel for firstprivate(computor) reduction(+:chi2_per_process) num_threads(4)
+#pragma omp parallel for firstprivate(computor) reduction(+:chi2_per_process) num_threads(8)
     	for(int j = 0;  j < processes[i].numberOfpoints; ++j)
     	{
     	    const DataPoint  p = processes[i].experimentalPoints[j]; 
@@ -297,7 +298,7 @@ double FitManager::chi2(const double * parameters = 0)
 
     	    chi2_per_process += delta * delta; 
     	}
-    //	std::cout << "Here is my start value : " << chi2_per_process / processes[i].numberOfpoints << std::endl; 
+    	std::cout << "Here is my start value : " << chi2_per_process / processes[i].numberOfpoints << std::endl; 
     	result += chi2_per_process; 
     }
     return result; 
@@ -307,13 +308,14 @@ double FitManager::chi2(const double * parameters = 0)
 void FitManager::PerformMinimization()
 {
     if(gMinimizer == 0)
-	SetupMinimizer(); 
+    	SetupMinimizer(); 
 
     double arglist[10];
     int ierflag = 0; 
     arglist[0] = 500; 
     arglist[1] = 1.; 
     // gMinimizer->mnexcm("MIGRAD", arglist, 2, ierflag);
+    std::cout << "Showing fcn" << std::endl;
     gMinimizer->mnexcm("SHO FCN", arglist, 2, ierflag);
 }
 
