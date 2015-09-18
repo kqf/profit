@@ -8,6 +8,7 @@
 #ifndef REGGEPOLE_H
 #define	REGGEPOLE_H
 
+#include <iostream>
 #include <complex>
 #include <vector>
 #include <cassert>
@@ -21,7 +22,11 @@ private:
 public:
 //    complexd Amplitude(const double & s, const double & t, bool) const; 
     static std::vector<AbstractPole *> MakePoles(const double *, const int &); 
-
+    virtual void PrintParameters() const { std::cout << "g  "   << g 
+                                                    << " a0 "  << a0
+                                                    << " ap "  << ap
+                                                    << " B "   << B << std::endl;
+                                         }
 private:
     // this is number of input parameters in constructor!
     // if you modify the constructor --- you should modify 

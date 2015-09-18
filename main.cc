@@ -22,30 +22,30 @@ int main(int argc, char** argv)
 {
 
 
-    TApplication * app = new TApplication("ProFit", &argc, argv);
+    // TApplication * app = new TApplication("ProFit", &argc, argv);
 
-    PhysicalProcess input_array[] = { PhysicalProcess("sigma_pp",    110, "#sigma_{pp}", 266),
-                                      PhysicalProcess("sigma_pbarp", 111, "#sigma_{p#bar{p}}", 444),
-                        				      PhysicalProcess("rho_pp",      210, "#rho_{pp}", 116),
-                                      PhysicalProcess("rho_pbarp",   211, "#rho_{p#bar{p}}", 90),
-                                      PhysicalProcess("ds_pp",       310, "#frac{d#sigma}{dt}_{pp}", 1633),
-                                      PhysicalProcess("ds_pbarp",    311, "#frac{d#sigma}{dt}_{p#bar{p}}", 1249) };
+    PhysicalProcess input_array[] = { PhysicalProcess("sigma_pp",    110, "#sigma_{pp}", 81),
+                                      PhysicalProcess("sigma_pbarp", 111, "#sigma_{p#bar{p}}", 43),
+                        				      PhysicalProcess("rho_pp",      210, "#rho_{pp}", 54),
+                                      PhysicalProcess("rho_pbarp",   211, "#rho_{p#bar{p}}", 11),
+                                      PhysicalProcess("ds_pp",       310, "#frac{d#sigma}{dt}_{pp}", 1634),
+                                      PhysicalProcess("ds_pbarp",    311, "#frac{d#sigma}{dt}_{p#bar{p}}", 509) };
 
     std::vector<PhysicalProcess> input_vector(input_array, input_array + sizeof(input_array) / sizeof(PhysicalProcess));
 
-    FitManager & manager =   FitManager::GetFitManager();
-    manager.GetData("Data.root", input_vector); 
+    FitManager & manager = FitManager::GetFitManager();
+    manager.GetData("/afs/cern.ch/user/o/okovalen/private/bitp/regge-amplitude-analysis/Data.root", input_vector); 
     manager.GetParameters(); 
     // manager.DrawApproximation(); 
 
    TStopwatch timer; 
    timer.Start(); 
-   manager.PerformMinimization(); 
+     manager.PerformMinimization(); 
    timer.Stop(); 
    std::cout << "It takes " << timer.CpuTime() / 60 << " to calculate chi^2." << std::endl; 
 
 
-    app->Run();
+    // app->Run();
     return 0;
 }
 

@@ -10,6 +10,7 @@
 
 #include <complex>
 
+
 class AbstractPole {
 protected:
     typedef std::complex<double > complexd; 
@@ -18,11 +19,12 @@ public:
     AbstractPole(const bool & odd):
     isOdd(odd)
     {
-	complexd i(0, 1); 
-	coef = odd ? -i : -1;
+    	complexd i(0, 1); 
+    	coef = odd ? -i : -1;
     }
 
     complexd Amplitude(const double & s, const double & t, bool) const; 
+    virtual void PrintParameters() const = 0;
     
 private:
     virtual complexd PureAmplitude(const double & s, const double & t) const  = 0; 

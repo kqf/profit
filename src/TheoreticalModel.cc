@@ -7,32 +7,44 @@
 
 #include "TheoreticalModel.h"
 #include "ModifiedPole.h"
+#include "QuadraticPole.h"
 
 #include <iostream>
+
+#include <gsl/gsl_errno.h>
+
 TheoreticalModel::TheoreticalModel(const double * par, int n):npars(n)
 {
+    // gsl_set_error_handler_off(); 
+    gsl_set_error_handler_off(); 
     SetParameters(par); 
 }
 
 void TheoreticalModel::SetParameters(const double * par)
 {
-    // ModifiedPole * pomeron = new ModifiedPole(par[0], par[1], par[2], par[3], par[4], par[5], par[6] < 0); 
+    QuadraticPole * pomeron = new QuadraticPole(par[0], par[1], par[2], par[3], par[4], par[5] < 0); 
+    QuadraticPole * odderon = new QuadraticPole(par[6], par[1] - par[7], par[2] - par[8], par[9], par[10] - par[4], par[11] < 0); 
 
-    // TODO: rewrite it! Should be :
-    // poles = ReggePole::MakePoles(par + pomeron.GetNpars() , npars - 1 - pomeron.GetNpars()); 
+    int skipped = 12;
 
-    // poles = ReggePole::MakePoles(par + 7, npars - 1 - 7); 
-    poles = ReggePole::MakePoles(par, npars - 1); 
-    // poles.push_back(pomeron);
+    poles = ReggePole::MakePoles(par + skipped , npars - 1 - skipped); 
+
+    poles.push_back(pomeron);
+    poles.push_back(odderon);
 
     // TODO: check correctness of 2 * i * lambda
     ilambda = complexd(0, 2 * par[npars - 1]); 
+
+    // We set new parameters, result is interesting
+    // We do need evaluation
+    skipEvaluation = false;
 }
 
 double TheoreticalModel::GetTheoreticalValue(double  energy
 					    ,double  transverse_momentum)
 {
     assert(npars != 0 && "Parameters are not set");
+    if (skipEvaluation) return 0.; // our model contains bad parameters -- just quit
     s = energy * energy; 
     t = transverse_momentum; 
 
@@ -82,6 +94,10 @@ TheoreticalModel::complexd TheoreticalModel::GetA(bool onlyImage)
 
 double TheoreticalModel::BesselTransform(double(*function)(double,void*), bool whole_range)
 {
+    // bad model parameters, don't waste time for integration
+    // Can't put 0 here since Rho gives nan.
+    if(skipEvaluation) return 0.001; 
+
     double result = 0;
     double error  = 0;
     double precision_abs = 1e-3;
@@ -89,16 +105,24 @@ double TheoreticalModel::BesselTransform(double(*function)(double,void*), bool w
     int workspace = 1e+4;
     
     
+    // TODO: remove this invocation from here!!!
     gsl_integration_workspace * w = gsl_integration_workspace_alloc (workspace);
     gsl_function F;
 
     F.function = function;
     F.params = (void *) this;
-
+    int status = 0;
+ 
     if(whole_range)
-	gsl_integration_qagiu (&F, 0, precision_abs, precision_rel, workspace, w, &result, &error); 
+    	status = gsl_integration_qagiu (&F, 0, precision_abs, precision_rel, workspace, w, &result, &error); 
     else
-        gsl_integration_qags  (&F, 0, 30, precision_abs, precision_rel, workspace, w, &result, &error); 
+        status = gsl_integration_qags  (&F, 0, 30, precision_abs, precision_rel, workspace, w, &result, &error); 
+
+    if (status == GSL_ESING)
+    {
+        PrintFailure(status);
+        return 0.;
+    }
 
     gsl_integration_workspace_free (w);
     return result;
@@ -159,6 +183,19 @@ double TheoreticalModel::DrawFunction(double* x, double* par)
 
     double result = GetTheoreticalValue(energy, t);  
     return result; 
+}
+void TheoreticalModel::PrintFailure(const int & status)
+{
+    // Once we see problem in integrals 
+    // we should skip further computations until we change parameters
+    skipEvaluation = true;
+
+
+    std::cout << "Problem with integration " <<  gsl_strerror(status)  << std::endl;
+    for(int i = 0; i < poles.size(); ++i)
+        poles[i]->PrintParameters();
+    std::cout << "Lambda " << ilambda  << std::endl;
+
 }
 
 double g(double x, void * params)

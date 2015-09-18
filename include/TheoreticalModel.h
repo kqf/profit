@@ -27,7 +27,7 @@ private:
     typedef std::complex<double > complexd; 
 public:
     TheoreticalModel():npars(0) {} ;
-//    TheoreticalModel(const TheoreticalModel & other);
+//    TheoreticalModel(TheoreticalModel & other);
 //    TheoreticalModel & operator=(const TheoreticalModel & other);
 
     TheoreticalModel(const double * ,int);
@@ -45,13 +45,15 @@ public:
     double DrawFunction(double * x, double * par); 
     int npars; 
 private:
-
+    void PrintFailure(const int &);
     std::vector<AbstractPole * > poles; 
     complexd ilambda; 
-
+    
     double b, s, t; 
     int processType; 
     bool calculateImagH, calculateImagh; 
+    bool skipEvaluation; // flag as true in PrintFailure(), skip as false in SetParameters
+                          // this should save a lot of time.
 };
 
 #endif	/* THEORETICALMODEL_H */
