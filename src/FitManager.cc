@@ -13,6 +13,7 @@
 
 #include <cassert>
 #include <iostream>
+#include <iomanip>
 #include <algorithm>
 #include <functional>
 #include <omp.h>
@@ -109,7 +110,7 @@ void FitManager::GetParameters()
 		// 0,  1.10517,   0.1,    0.09,   5,  4,    1,
 		// g,       a0,      ap,       B,     app,
 		40.3043,  1.10517,    0.35, 2.32537,  0.1,    1,   
-		20.3043,  0.10517,    0.15, 2.32537,  0.1,   -1,   
+		// 20.3043,  1.00417,    0.35, 2.32537,  0.0,   -1,   
 		102.760, 0.791348, 1.31638, 1.98679,          1,   
 		117.221,      0.5,     1.2, 8.80651,         -1,     // 
 		1.                                            // lambda
@@ -119,7 +120,7 @@ void FitManager::GetParameters()
 	double sts[] = {
 		// 0.1,  0.01,  0.01, 0.0,  0.1, 0, 0, 
 		0.1,  0.01,  0.01, 0.1, 0.01, 0,
-		0.1,  0.01,  0.01, 0.1, 0.01, 0,
+		// 0.1,  0.01,  0.01, 0.1, 0.01, 0,
 		0.1,  0.001, 0.01, 0.1,       0,
 		0.1,  0.001, 0.01, 0.1,       0,
 		0
@@ -129,7 +130,7 @@ void FitManager::GetParameters()
 	double as[] = {
 		// -0.1e+4,  1.05,  0,  0.078, 0,  3,  1, 
 		0.,  1.05, 0.25, 0., 0.,  1.,
-		0.,  0.00, 0.00, 0., 0.,  1.,
+		// 0.,  0.80, 0.25, 0., 0.,  1.,
 		0.,  0.50, 0.80, 0.,      1.,
 		0.,  0.40, 0.80, 0.,     -1.,
 		0.5
@@ -138,7 +139,7 @@ void FitManager::GetParameters()
 	double bs[] = {
 		// 0.1e+4,  1.25, 10,  0.2, 10,  4,  1, 
 		0.1e+4, 1.25, 0.55, 10,  0.2,  1., 
-		0.1e+4, 0.50, 0.25, 10,  0.2,  1., 
+		// 0.1e+4, 1.05, 0.45, 10,  0.2,  1., 
 		0.1e+4, 0.80, 1.40, 10,        1., 
 		0.1e+4, 0.80, 1.40, 15,       -1.,
 		5
@@ -147,7 +148,7 @@ void FitManager::GetParameters()
 	const char * names[] = {
 		// "g_p", "alpha_p0", "gamma", "t0", "tau", "nu",  "pODD", 
 		"g_p",  "alpha_p0", "alpha_p'", "B_p", "alpha_p''", "pODD", 
-		"g_o",  "delta_o0", "delta_o'", "B_o", "delta_o''", "oODD", 
+		// "g_o",  "alpha_o0", "alpha_o'", "B_o", "alpha_o''", "oODD", 
 		"g_f",  "alpha_f0", "alpha_f'", "B_f",              "fODD", 
 		"g_w",  "alpha_w0", "alpha_w'", "B_w",              "wODD", "lambda"
 	}; 
@@ -295,8 +296,9 @@ double FitManager::chi2(const double * parameters = 0)
 		chi2_per_process = 0; 
 		TheoreticalModel computor(currentModel); 
 
-#pragma omp parallel for firstprivate(computor) reduction(+:chi2_per_process) num_threads(8)
-		for(int j = 0;  j < processes[i].numberOfpoints; ++j)
+		int npoints = processes[i].numberOfpoints;
+// #pragma omp parallel for firstprivate(computor) reduction(+:chi2_per_process) num_threads(4)
+		for(int j = 0;  j <  npoints; ++j)
 		{
 			const DataPoint & p = processes[i].experimentalPoints[j]; 
 			if(p.ignore) continue; 
@@ -304,9 +306,17 @@ double FitManager::chi2(const double * parameters = 0)
 			double y =  computor.GetTheoreticalValue(p.energy, p.t);
 			double delta =  (p.observable - y)/ p.error ; 
 
+			// std::cout << std::setw(8) << p.energy << "\t" 
+		              // << std::setw(8) << p.t << "\t" 
+		              // << std::setw(8) << p.observable << "\t" 
+		              // << std::setw(8) << y << "\terror\t" 
+		              // << std::setw(8) << p.error << "\t" 
+					  // << processes[i].dataCode << "\t" 
+					  // << std::setw(8) << delta * delta << std::endl;
+
 			chi2_per_process += delta * delta; 
 		}
-		// std::cout << "Here is my start value : " << chi2_per_process / processes[i].numberOfpoints << " for "  << processes[i].dataCode << std::endl; 
+		// std::cout << "Chi^2/ndof per process: " << chi2_per_process / processes[i].numberOfpoints << " for "  << processes[i].dataCode << std::endl; 
 		result += chi2_per_process; 
 	}
 	return result; 
