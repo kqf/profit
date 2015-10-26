@@ -3,3 +3,5 @@
 + See plots
 - Introduce odderon
 - Run batch
+
+- Fix reading data

@@ -81,6 +81,11 @@ bool FitManager::Cut(const DataPoint& p, int procType)
 
 void FitManager::FillProcess(PhysicalProcess & proc)
 {
+	// TODO: rewrite this 
+	// this should be a static method of PhysicalProcess
+	// something like: 
+	// std::vector<PhysicalProcess> PhysicalProcess::CreateProcessesFromFile("Data.root")
+
 	TChain * dat = new TChain(proc.name);
 	dat->Add(root_file);
 	float a, b ,c, d;
@@ -89,7 +94,7 @@ void FitManager::FillProcess(PhysicalProcess & proc)
 	dat ->SetBranchAddress("error", &b);
 	dat ->SetBranchAddress("energy", &c);
 	dat ->SetBranchAddress("t", &d);
-	for (int i = 0 ; i < proc.numberOfpoints; ++i )
+	for (int i = 0 ; i < dat->GetEntries(); ++i )
 	{
 		dat->GetEntry(i);
 		proc.experimentalPoints.push_back(DataPoint((double)a,(double)b,(double)c,(double)d)); 
@@ -98,6 +103,9 @@ void FitManager::FillProcess(PhysicalProcess & proc)
 		if( Cut(point, proc.dataCode) )
 			point.ignore = true; 
 	}
+	proc.numberOfpoints = proc.experimentalPoints.size();
+
+	std::cout << "Number of points for " << proc.name << " : " <<  proc.experimentalPoints.size() << std::endl;
 
 	delete dat;
 	dat = 0; 
@@ -106,23 +114,35 @@ void FitManager::FillProcess(PhysicalProcess & proc)
 void FitManager::GetParameters()
 {
 	// TODO: write nice input handler
-	double vals[] = {
+	// double vals[] = {
 		// 0,  1.10517,   0.1,    0.09,   5,  4,    1,
 		// g,       a0,      ap,       B,     app,
-		40.3043,  1.10517,    0.35, 2.32537,  0.1,    1,   
+		// 40.3043,  1.10517,    0.35, 2.32537,  0.1,    1,   
 		// 20.3043,  1.00417,    0.35, 2.32537,  0.0,   -1,   
-		102.760, 0.791348, 1.31638, 1.98679,          1,   
-		117.221,      0.5,     1.2, 8.80651,         -1,     // 
-		1.                                            // lambda
-	}; 
+		// 102.760, 0.791348, 1.31638, 1.98679,          1,   
+		// 117.221,      0.5,     1.2, 8.80651,         -1,     // 
+		// 1.                                            // lambda
+	// }; 
+	
+	double vals[] = {	
+						// 4.34915e+01, 1.13817e+00, 2.72271e-01, 3.59603e+00, 1.99973e-01, 1.00000e+00,
+						// 2.03043e+01, 1.00417e+00, 3.50000e-01, 2.32537e-01, 2.86102e-07, -1.00000e+00,
+						0, 1.13817e+00, 2.72271e-01, 3.59603e+00, 1.99973e-01, 1.00000e+00,
+						0, 1.00417e+00, 3.50000e-01, 2.32537e-01, 2.86102e-07, -1.00000e+00,
+						// 2.41275e+02, 7.13160e-01, 8.00088e-01, 1.12237e+01, 1.00000e+00, 
+						// 1.62119e+02, 4.76794e-01, 8.00000e-01, 8.61656e-07, -1.00000e+00,
+						102.760, 0.791348, 1.31638, 1.98679,          1,   
+						117.221,      0.5,     1.2, 8.80651,         -1,     	
+						1.00000e+00 };
+
 
 	// step sizes
 	double sts[] = {
 		// 0.1,  0.01,  0.01, 0.0,  0.1, 0, 0, 
 		0.1,  0.01,  0.01, 0.1, 0.01, 0,
-		// 0.1,  0.01,  0.01, 0.1, 0.01, 0,
-		0.1,  0.001, 0.01, 0.1,       0,
-		0.1,  0.001, 0.01, 0.1,       0,
+		0.1,  0.01,  0.01, 0.1, 0.01, 0,
+		0.0,  0.000, 0.00, 0.0,       0,
+		0.0,  0.000, 0.00, 0.0,       0,
 		0
 	}; 
 
@@ -130,7 +150,7 @@ void FitManager::GetParameters()
 	double as[] = {
 		// -0.1e+4,  1.05,  0,  0.078, 0,  3,  1, 
 		0.,  1.05, 0.25, 0., 0.,  1.,
-		// 0.,  0.80, 0.25, 0., 0.,  1.,
+		0.,  0.80, 0.25, 0., 0., -1.,
 		0.,  0.50, 0.80, 0.,      1.,
 		0.,  0.40, 0.80, 0.,     -1.,
 		0.5
@@ -138,9 +158,9 @@ void FitManager::GetParameters()
 	// upper bounds 
 	double bs[] = {
 		// 0.1e+4,  1.25, 10,  0.2, 10,  4,  1, 
-		0.1e+4, 1.25, 0.55, 10,  0.2,  1., 
-		// 0.1e+4, 1.05, 0.45, 10,  0.2,  1., 
-		0.1e+4, 0.80, 1.40, 10,        1., 
+		0.1e+4, 1.25, 0.55, 10,  0.3,  1., 
+		0.1e+4, 0.05, 0.45, 10,  0.3, -1., 
+		0.1e+4, 0.80, 1.40, 12,        1., 
 		0.1e+4, 0.80, 1.40, 15,       -1.,
 		5
 	}; 
@@ -148,7 +168,7 @@ void FitManager::GetParameters()
 	const char * names[] = {
 		// "g_p", "alpha_p0", "gamma", "t0", "tau", "nu",  "pODD", 
 		"g_p",  "alpha_p0", "alpha_p'", "B_p", "alpha_p''", "pODD", 
-		// "g_o",  "alpha_o0", "alpha_o'", "B_o", "alpha_o''", "oODD", 
+		"g_o",  "delta_o0", "delta_o'", "B_o", "delta_o''", "oODD", 
 		"g_f",  "alpha_f0", "alpha_f'", "B_f",              "fODD", 
 		"g_w",  "alpha_w0", "alpha_w'", "B_w",              "wODD", "lambda"
 	}; 
@@ -178,7 +198,7 @@ void FitManager::DrawApproximation()
 	for(int i = 0; i < graphs.size(); ++i)
 	{
 		main_canvas->cd(i + 1);
-		if(processes[i].dataCode < 200)
+		if(processes[i].dataCode < 300)
 			gPad->SetLogx(); 
 		if(processes[i].dataCode > 300)
 			gPad->SetLogy(); 
@@ -297,7 +317,7 @@ double FitManager::chi2(const double * parameters = 0)
 		TheoreticalModel computor(currentModel); 
 
 		int npoints = processes[i].numberOfpoints;
-// #pragma omp parallel for firstprivate(computor) reduction(+:chi2_per_process) num_threads(4)
+#pragma omp parallel for firstprivate(computor) reduction(+:chi2_per_process) num_threads(4)
 		for(int j = 0;  j <  npoints; ++j)
 		{
 			const DataPoint & p = processes[i].experimentalPoints[j]; 

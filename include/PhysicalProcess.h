@@ -25,7 +25,7 @@ struct DataPoint
 
 struct PhysicalProcess
 {
-    PhysicalProcess(const char * process_name, int code, const char * graph_title, int points); 
+    PhysicalProcess(const char * process_name, int code, const char * graph_title); 
     double chi2;  // chi2 per process
     const char * name; 
     const char * title; 
