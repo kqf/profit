@@ -5,3 +5,6 @@ profit
 nbproject/*
 *.out
 LSF*
+*.dat
+*.pdf
+*.png

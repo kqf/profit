@@ -22,15 +22,14 @@ TheoreticalModel::TheoreticalModel(const double * par, int n):npars(n)
 
 void TheoreticalModel::SetParameters(const double * par)
 {
-    QuadraticPole * pomeron = new QuadraticPole(par[0], par[1], par[2], par[3], par[4], par[5] < 0); 
-    QuadraticPole * odderon = new QuadraticPole(par[6], par[1] - par[7], par[2] - par[8], par[9], par[10] - par[4], par[11] < 0); 
+    // QuadraticPole * pomeron = new QuadraticPole(par[0], par[1], par[2], par[3], par[4], par[5] < 0); 
+    // QuadraticPole * odderon = new QuadraticPole(par[6], par[1] - par[7], par[2] - par[8], par[9], par[10] - par[4], par[11] < 0); 
 
-    int skipped = 12;
+    // int skipped = 12;
     // int skipped = 6;
-
+    int skipped = 0;
     poles = ReggePole::MakePoles(par + skipped , npars - 1 - skipped); 
-
-    poles.push_back(pomeron);
+    // poles.push_back(pomeron);
     // poles.push_back(odderon);
 
     // TODO: check correctness of 2 * i * lambda
@@ -154,7 +153,9 @@ double TheoreticalModel::GetH(double impactb)
 TheoreticalModel::complexd TheoreticalModel::Unitarize(const complexd& h)
 {
     // TODO: Try to write more simple variant
-    return h / ( -0.5 * ilambda * h + std::complex<double >(1, 0) );
+    // return h / ( -0.5 * ilambda * h + std::complex<double >(1, 0) );
+
+    return ( exp(ilambda * h ) - 1.) / ilambda;
 }
 
 double TheoreticalModel::Geta(double q)

@@ -10,6 +10,9 @@
 #include <TChain.h>
 #include <TF1.h>
 #include <TAxis.h>
+#include <TString.h>
+#include <TLatex.h>
+
 
 #include <cassert>
 #include <iostream>
@@ -28,7 +31,7 @@ FitManager::FitManager():
 	fitFunction(0)
 {
 	ds_pbp_energy = 53.018; 
-	ds_pp_energy = 7000;
+	ds_pp_energy = 44.7;
 }
 
 FitManager & FitManager::GetFitManager()
@@ -125,22 +128,23 @@ void FitManager::GetParameters()
 	// }; 
 	
 	double vals[] = {	
-						// 4.34915e+01, 1.13817e+00, 2.72271e-01, 3.59603e+00, 1.99973e-01, 1.00000e+00,
-						// 2.03043e+01, 1.00417e+00, 3.50000e-01, 2.32537e-01, 2.86102e-07, -1.00000e+00,
-						0, 1.13817e+00, 2.72271e-01, 3.59603e+00, 1.99973e-01, 1.00000e+00,
-						0, 1.00417e+00, 3.50000e-01, 2.32537e-01, 2.86102e-07, -1.00000e+00,
-						// 2.41275e+02, 7.13160e-01, 8.00088e-01, 1.12237e+01, 1.00000e+00, 
-						// 1.62119e+02, 4.76794e-01, 8.00000e-01, 8.61656e-07, -1.00000e+00,
-						102.760, 0.791348, 1.31638, 1.98679,          1,   
-						117.221,      0.5,     1.2, 8.80651,         -1,     	
-						1.00000e+00 };
+						 0.132485E+01, 0.122093E+01, 0.117091E+00, 0.397663E+00,  1,
+						 0.875300E+01, 0.116753E+01, 0.303615E+00, 0.412454E+00,  1,
+						 0.491382e+02, 0.107035e+01, 0.591181e+00, 0.120456e+01,  1,
+						-0.271333E+02, 0.122000E+01, 0.722547E-01, 0.138432E-01, -1,
+						 0.271714E+02, 0.121958E+01, 0.722148E-01, 0.137441E-01, -1,
+						 0.221550E+03, 0.690000E+00, 0.840000E+00, 0.546035E+01,  1,
+						 0.149166E+03, 0.470000E+00, 0.930000E+00, 0.705708E+01, -1,
+					     1.00000e+00 };
 
 
 	// step sizes
 	double sts[] = {
-		// 0.1,  0.01,  0.01, 0.0,  0.1, 0, 0, 
-		0.1,  0.01,  0.01, 0.1, 0.01, 0,
-		0.1,  0.01,  0.01, 0.1, 0.01, 0,
+		0.0,  0.000, 0.00, 0.0,       0,
+		0.0,  0.000, 0.00, 0.0,       0,
+		0.0,  0.000, 0.00, 0.0,       0,
+		0.0,  0.000, 0.00, 0.0,       0,
+		0.0,  0.000, 0.00, 0.0,       0,
 		0.0,  0.000, 0.00, 0.0,       0,
 		0.0,  0.000, 0.00, 0.0,       0,
 		0
@@ -149,28 +153,37 @@ void FitManager::GetParameters()
 	// lower bounds
 	double as[] = {
 		// -0.1e+4,  1.05,  0,  0.078, 0,  3,  1, 
-		0.,  1.05, 0.25, 0., 0.,  1.,
-		0.,  0.80, 0.25, 0., 0., -1.,
-		0.,  0.50, 0.80, 0.,      1.,
-		0.,  0.40, 0.80, 0.,     -1.,
+		0.000,  1.01, 0.01, 0.,      1.,
+		0.000,  1.01, 0.01, 0.,      1.,
+		0.000,  1.01, 0.01, 0.,      1.,
+		-50.0,  1.01, 0.01, 0.,     -1.,
+		0.000,  1.01, 0.01, 0.,     -1.,
+		0.000,  0.40, 0.80, 0.,      1.,
+		0.000,  0.40, 0.80, 0.,     -1.,
 		0.5
 	}; 
 	// upper bounds 
 	double bs[] = {
-		// 0.1e+4,  1.25, 10,  0.2, 10,  4,  1, 
-		0.1e+4, 1.25, 0.55, 10,  0.3,  1., 
-		0.1e+4, 0.05, 0.45, 10,  0.3, -1., 
-		0.1e+4, 0.80, 1.40, 12,        1., 
-		0.1e+4, 0.80, 1.40, 15,       -1.,
+		0.1e+4, 1.25, 0.55, 10,     1., 
+		0.1e+4, 1.25, 0.55, 10,     1., 
+		0.1e+4, 1.25, 0.55, 10,     1., 
+		0.1e+4, 1.25, 0.45, 10,    -1., 
+		0.1e+4, 1.25, 0.45, 10,    -1., 
+		0.1e+4, 0.80, 1.40, 12,     1., 
+		0.1e+4, 0.80, 1.40, 15,    -1.,
 		5
 	}; 
 
 	const char * names[] = {
 		// "g_p", "alpha_p0", "gamma", "t0", "tau", "nu",  "pODD", 
-		"g_p",  "alpha_p0", "alpha_p'", "B_p", "alpha_p''", "pODD", 
-		"g_o",  "delta_o0", "delta_o'", "B_o", "delta_o''", "oODD", 
-		"g_f",  "alpha_f0", "alpha_f'", "B_f",              "fODD", 
-		"g_w",  "alpha_w0", "alpha_w'", "B_w",              "wODD", "lambda"
+		"g_p1",  "alpha_p10", "alpha_p1'", "B_p1", "p1ODD", 
+		"g_p2",  "alpha_p20", "alpha_p2'", "B_p2", "p2ODD", 
+		"g_p3",  "alpha_p30", "alpha_p3'", "B_p3", "p3ODD", 
+		"g_o1",  "delta_o10", "delta_o1'", "B_o1", "o1ODD", 
+		"g_o2",  "delta_o20", "delta_o2'", "B_o2", "o2ODD", 
+		"g_+",  "alpha_+0", "alpha_+'", "B_+", "+ODD", 
+		"g_-",  "alpha_-0", "alpha_-'", "B_-", "-ODD",
+	    "lambda"
 	}; 
 
 
@@ -195,17 +208,32 @@ void FitManager::DrawApproximation()
 		CreateGraph(processes[i]);
 
 
+	TLatex energy_label;
+	energy_label.SetTextFont(43);
+	energy_label.SetTextSize(20);
 	for(int i = 0; i < graphs.size(); ++i)
 	{
 		main_canvas->cd(i + 1);
 		if(processes[i].dataCode < 300)
 			gPad->SetLogx(); 
+
 		if(processes[i].dataCode > 300)
 			gPad->SetLogy(); 
+
+		graphs[i]->Draw("AP");
+		DrawFitFunction(processes[i]); 
+
+		// if(processes[i].dataCode == 310)
+			energy_label.DrawText(0.1, 0.5, TString::Format("#sqrt{s} = %.2g", ds_pp_energy));
+
+		// if(processes[i].dataCode == 311)
+			// energy_label.DrawText(0.5, 0.5, TString::Format("#sqrt{s} = %.2g", ds_pbp_energy));
+
 		graphs[i]->Draw("AP");
 		DrawFitFunction(processes[i]); 
 	}
 	main_canvas->Show(); 
+	main_canvas->SaveAs(TString::Format("Plots_with_pp%.2g_pap_%.2g_.png", ds_pp_energy, ds_pbp_energy));
 }
 
 void FitManager::CreateGraph(PhysicalProcess& proc)
@@ -325,6 +353,7 @@ double FitManager::chi2(const double * parameters = 0)
 
 			double y =  computor.GetTheoreticalValue(p.energy, p.t);
 			double delta =  (p.observable - y)/ p.error ; 
+			
 
 			// std::cout << std::setw(8) << p.energy << "\t" 
 		              // << std::setw(8) << p.t << "\t" 
@@ -352,7 +381,7 @@ void FitManager::PerformMinimization()
 	int ierflag = 0; 
 	arglist[0] = 500; 
 	arglist[1] = 1.; 
-	gMinimizer->mnexcm("MINIMIZE", arglist, 2, ierflag);
+	// gMinimizer->mnexcm("MINIMIZE", arglist, 2, ierflag);
 	// gMinimizer->mnexcm("MIGRAD", arglist, 2, ierflag);
 	std::cout << "Showing fcn" << std::endl;
 	gMinimizer->mnexcm("SHO FCN", arglist, 2, ierflag);
