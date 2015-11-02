@@ -35,13 +35,13 @@ private:
 
     ReggePole(const double & a, const double & b,
               const double & c, const double & d, const bool & odd):
-	      g(a), a0(b), ap(c), B(d), AbstractPole(odd) {}
+	      a0(a), ap(b), g(c),  B(d), AbstractPole(odd) {}
 
     virtual complexd PureAmplitude(const double & s, const double & t) const ; 
 
-    double g;
     double a0;
     double ap;
+    double g;
     double B; 
 };
 
