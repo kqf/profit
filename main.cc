@@ -33,9 +33,9 @@ int main(int argc, char** argv)
 
 	FitManager & manager = FitManager::GetFitManager();
 	manager.GetData("FakeData.root", input_vector); 
-	// manager.GetParameters("parameters.in"); 
-	manager.GetParameters("linear_parameters.in"); 
-	// manager.DrawApproximation(); 
+	manager.GetParameters("parameters.in"); 
+	// manager.GetParameters("linear_parameters.in"); 
+	manager.DrawApproximation(); 
 
    TStopwatch timer; 
    timer.Start(); 

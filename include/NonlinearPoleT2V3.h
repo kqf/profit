@@ -26,7 +26,7 @@ public:
     static std::vector<AbstractPole *> MakePoles(const double *, const int &); 
     static AbstractPole * MakeNonlinearPole(const double * p, const double & nu, const double & eta);
 
-    virtual void PrintParameters() const {          std::cout << "\ta0   " << std::setw(8) << a0
+    virtual void PrintParameters() const {          std::cout << "a0   " << std::setw(8) << a0
                                                               << "\tgamma" << std::setw(8) << gamma
                                                               << "\ttr   " << std::setw(8) << tr
                                                               << "\tg    " << std::setw(8) << g

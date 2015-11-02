@@ -23,23 +23,22 @@ TheoreticalModel::TheoreticalModel(const double * par, int n):npars(n)
 
 void TheoreticalModel::SetParameters(const double * par)
 {
-    // double mup = par[0];
-    // double eta = par[1];
-    // double muo = par[3];
-    // double phi = par[4];
-    int skipped = 0;
-    // int skipped = 4;
-    // AbstractPole * pomeron = NonlinearPoleT2V3::MakeNonlinearPole(par + skipped, mup, eta);
-    // skipped = skipped + NonlinearPoleT2V3::nImputParamets - 2;
+    double mup = par[0];
+    double eta = par[1];
+    double muo = par[3];
+    double phi = par[4];
+    int skipped = 4;
+    AbstractPole * pomeron = NonlinearPoleT2V3::MakeNonlinearPole(par + skipped, mup, eta);
+    skipped = skipped + NonlinearPoleT2V3::nImputParamets - 2;
 
-    // AbstractPole * odderon = NonlinearPoleT2V3::MakeNonlinearPole(par + skipped, muo, phi);
-    // skipped = skipped + NonlinearPoleT2V3::nImputParamets - 2;
+    AbstractPole * odderon = NonlinearPoleT2V3::MakeNonlinearPole(par + skipped, muo, phi);
+    skipped = skipped + NonlinearPoleT2V3::nImputParamets - 2;
 
     // int skipped = 12;
     // int skipped = 6;
     poles = ReggePole::MakePoles(par + skipped , npars - 1 - skipped); 
-    // poles.push_back(pomeron);
-    // poles.push_back(odderon);
+    poles.push_back(pomeron);
+    poles.push_back(odderon);
 
     // TODO: check correctness of 2 * i * lambda
     ilambda = complexd(0, 2 * par[npars - 1]); 
@@ -109,8 +108,8 @@ double TheoreticalModel::BesselTransform(double(*function)(double,void*), bool w
 
     double result = 0;
     double error  = 0;
-    double precision_abs = 1e-3;
-    double precision_rel = 1e-3;
+    double precision_abs = 1e-4;
+    double precision_rel = 1e-4;
     int workspace = 1e+4;
     
     
@@ -125,7 +124,7 @@ double TheoreticalModel::BesselTransform(double(*function)(double,void*), bool w
     if(whole_range)
     	status = gsl_integration_qagiu (&F, 0, precision_abs, precision_rel, workspace, w, &result, &error); 
     else
-        status = gsl_integration_qags  (&F, 0, 30, precision_abs, precision_rel, workspace, w, &result, &error); 
+        status = gsl_integration_qags  (&F, 0, 40, precision_abs, precision_rel, workspace, w, &result, &error); 
 
     if (status == GSL_ESING)
     {
