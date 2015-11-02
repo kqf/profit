@@ -8,6 +8,7 @@
 #include "TheoreticalModel.h"
 #include "ModifiedPole.h"
 #include "QuadraticPole.h"
+#include "NonlinearPoleT2V3.h"
 
 #include <iostream>
 
@@ -22,12 +23,20 @@ TheoreticalModel::TheoreticalModel(const double * par, int n):npars(n)
 
 void TheoreticalModel::SetParameters(const double * par)
 {
-    // QuadraticPole * pomeron = new QuadraticPole(par[0], par[1], par[2], par[3], par[4], par[5] < 0); 
-    // QuadraticPole * odderon = new QuadraticPole(par[6], par[1] - par[7], par[2] - par[8], par[9], par[10] - par[4], par[11] < 0); 
+    // double mup = par[0];
+    // double eta = par[1];
+    // double muo = par[3];
+    // double phi = par[4];
+    int skipped = 0;
+    // int skipped = 4;
+    // AbstractPole * pomeron = NonlinearPoleT2V3::MakeNonlinearPole(par + skipped, mup, eta);
+    // skipped = skipped + NonlinearPoleT2V3::nImputParamets - 2;
+
+    // AbstractPole * odderon = NonlinearPoleT2V3::MakeNonlinearPole(par + skipped, muo, phi);
+    // skipped = skipped + NonlinearPoleT2V3::nImputParamets - 2;
 
     // int skipped = 12;
     // int skipped = 6;
-    int skipped = 0;
     poles = ReggePole::MakePoles(par + skipped , npars - 1 - skipped); 
     // poles.push_back(pomeron);
     // poles.push_back(odderon);

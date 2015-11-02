@@ -37,4 +37,10 @@ std::vector<AbstractPole * > NonlinearPoleT2V3::MakePoles(const double * p, cons
 }
 
 
+AbstractPole *  NonlinearPoleT2V3::MakeNonlinearPole(const double * p, const double & nu, const double & eta)
+{
+
+    return new NonlinearPoleT2V3(p[0], p[1], p[2], p[3], p[4], p[5], nu, eta, p[nImputParamets - 1] < 0 );
+}
+
 

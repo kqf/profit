@@ -114,86 +114,19 @@ void FitManager::FillProcess(PhysicalProcess & proc)
 	dat = 0; 
 } 
 
-void FitManager::GetParameters()
+void FitManager::GetParameters(const char * filename)
 {
-	// TODO: write nice input handler
-	// double vals[] = {
-		// 0,  1.10517,   0.1,    0.09,   5,  4,    1,
-		// g,       a0,      ap,       B,     app,
-		// 40.3043,  1.10517,    0.35, 2.32537,  0.1,    1,   
-		// 20.3043,  1.00417,    0.35, 2.32537,  0.0,   -1,   
-		// 102.760, 0.791348, 1.31638, 1.98679,          1,   
-		// 117.221,      0.5,     1.2, 8.80651,         -1,     // 
-		// 1.                                            // lambda
-	// }; 
-	
-	double vals[] = {	
-						 0.132485E+01, 0.122093E+01, 0.117091E+00, 0.397663E+00,  1,
-						 0.875300E+01, 0.116753E+01, 0.303615E+00, 0.412454E+00,  1,
-						 0.491382e+02, 0.107035e+01, 0.591181e+00, 0.120456e+01,  1,
-						-0.271333E+02, 0.122000E+01, 0.722547E-01, 0.138432E-01, -1,
-						 0.271714E+02, 0.121958E+01, 0.722148E-01, 0.137441E-01, -1,
-						 0.221550E+03, 0.690000E+00, 0.840000E+00, 0.546035E+01,  1,
-						 0.149166E+03, 0.470000E+00, 0.930000E+00, 0.705708E+01, -1,
-					     1.00000e+00 };
+	fit_parameters = ModelParameter::GetParameters(filename);
 
+	std::copy(fit_parameters.begin(), fit_parameters.end(), std::ostream_iterator<ModelParameter>(std::cout, ""));
 
-	// step sizes
-	double sts[] = {
-		0.0,  0.000, 0.00, 0.0,       0,
-		0.0,  0.000, 0.00, 0.0,       0,
-		0.0,  0.000, 0.00, 0.0,       0,
-		0.0,  0.000, 0.00, 0.0,       0,
-		0.0,  0.000, 0.00, 0.0,       0,
-		0.0,  0.000, 0.00, 0.0,       0,
-		0.0,  0.000, 0.00, 0.0,       0,
-		0
-	}; 
+	const int inp_length = fit_parameters.size();
+	double values[inp_length];
 
-	// lower bounds
-	double as[] = {
-		// -0.1e+4,  1.05,  0,  0.078, 0,  3,  1, 
-		0.000,  1.01, 0.01, 0.,      1.,
-		0.000,  1.01, 0.01, 0.,      1.,
-		0.000,  1.01, 0.01, 0.,      1.,
-		-50.0,  1.01, 0.01, 0.,     -1.,
-		0.000,  1.01, 0.01, 0.,     -1.,
-		0.000,  0.40, 0.80, 0.,      1.,
-		0.000,  0.40, 0.80, 0.,     -1.,
-		0.5
-	}; 
-	// upper bounds 
-	double bs[] = {
-		0.1e+4, 1.25, 0.55, 10,     1., 
-		0.1e+4, 1.25, 0.55, 10,     1., 
-		0.1e+4, 1.25, 0.55, 10,     1., 
-		0.1e+4, 1.25, 0.45, 10,    -1., 
-		0.1e+4, 1.25, 0.45, 10,    -1., 
-		0.1e+4, 0.80, 1.40, 12,     1., 
-		0.1e+4, 0.80, 1.40, 15,    -1.,
-		5
-	}; 
+	for (int i = 0; i < fit_parameters.size(); ++i)
+		values[i] = fit_parameters[i].value;
 
-	const char * names[] = {
-		// "g_p", "alpha_p0", "gamma", "t0", "tau", "nu",  "pODD", 
-		"g_p1",  "alpha_p10", "alpha_p1'", "B_p1", "p1ODD", 
-		"g_p2",  "alpha_p20", "alpha_p2'", "B_p2", "p2ODD", 
-		"g_p3",  "alpha_p30", "alpha_p3'", "B_p3", "p3ODD", 
-		"g_o1",  "delta_o10", "delta_o1'", "B_o1", "o1ODD", 
-		"g_o2",  "delta_o20", "delta_o2'", "B_o2", "o2ODD", 
-		"g_+",  "alpha_+0", "alpha_+'", "B_+", "+ODD", 
-		"g_-",  "alpha_-0", "alpha_-'", "B_-", "-ODD",
-	    "lambda"
-	}; 
-
-
-	int inp_length = sizeof(vals) / sizeof(double); 
-	assert(fit_parameters.size() == 0 && "You are trying add new parameters in irregular place"); 
-	for (int i = 0; i < inp_length; ++i)
-		fit_parameters.push_back( 
-				ModelParameter(names[i], vals[i], sts[i], as[i], bs[i]) ); 
-
-	currentModel = TheoreticalModel(vals, inp_length); 
+	currentModel = TheoreticalModel(values, inp_length); 
 
 	fitFunction = new TF1("fitFunction", &currentModel, &TheoreticalModel::DrawFunction, 2, 30000, currentModel.npars + 2); 
 	fitFunction->SetLineColor(37);
@@ -385,5 +318,11 @@ void FitManager::PerformMinimization()
 	// gMinimizer->mnexcm("MIGRAD", arglist, 2, ierflag);
 	std::cout << "Showing fcn" << std::endl;
 	gMinimizer->mnexcm("SHO FCN", arglist, 2, ierflag);
+
+	for (int i = 0; i < fit_parameters.size(); ++i)
+	{
+		gMinimizer->GetParameter(i, fit_parameters[i].value, arglist[9]);
+		std::cout << fit_parameters[i];
+    }
 }
 

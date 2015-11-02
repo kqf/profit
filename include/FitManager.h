@@ -28,7 +28,7 @@ public:
 
     static FitManager & GetFitManager(); 
     void GetData(const char * filename, std::vector<PhysicalProcess> input);
-    void GetParameters();
+    void GetParameters(const char * filename);
     void DrawApproximation();
     void PerformMinimization();
     double chi2(const double * parameters) ; 

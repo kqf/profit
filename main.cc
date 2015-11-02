@@ -32,9 +32,10 @@ int main(int argc, char** argv)
 	std::vector<PhysicalProcess> input_vector(input_array, input_array + sizeof(input_array) / sizeof(PhysicalProcess));
 
 	FitManager & manager = FitManager::GetFitManager();
-	manager.GetData("/afs/cern.ch/user/o/okovalen/private/bitp/regge-amplitude-analysis/FakeData.root", input_vector); 
-	manager.GetParameters(); 
-	manager.DrawApproximation(); 
+	manager.GetData("FakeData.root", input_vector); 
+	// manager.GetParameters("parameters.in"); 
+	manager.GetParameters("linear_parameters.in"); 
+	// manager.DrawApproximation(); 
 
    TStopwatch timer; 
    timer.Start(); 

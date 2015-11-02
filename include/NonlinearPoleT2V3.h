@@ -24,6 +24,7 @@ private:
 public:
 //    complexd Amplitude(const double & s, const double & t, bool) const; 
     static std::vector<AbstractPole *> MakePoles(const double *, const int &); 
+    static AbstractPole * MakeNonlinearPole(const double * p, const double & nu, const double & eta);
 
     virtual void PrintParameters() const {          std::cout << "\ta0   " << std::setw(8) << a0
                                                               << "\tgamma" << std::setw(8) << gamma
@@ -35,7 +36,7 @@ public:
                                                               << "\teta   " << std::setw(8) << eta << std::endl;
                                          }
 
-private:
+// private:
     // this is number of input parameters in constructor!
     // if you modify the constructor --- you should modify 
     // this number too !!
