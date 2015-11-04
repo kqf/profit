@@ -24,9 +24,13 @@ ModelParameter::ModelParameter(const char* n, double v, double s,
 
 std::ifstream & ignore_comment(std::ifstream & in)
 {
-    if(in.peek() == '#')
+    while(true)
+    {
+        if(in.peek() != '#')
+            break;
         in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    
+    }
+   
     return in;
 }
 

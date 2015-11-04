@@ -33,7 +33,8 @@ public:
                                                               << "\tB    " << std::setw(8) << B
                                                               << "\tC    " << std::setw(8) << C
                                                               << "\tnu   " << std::setw(8) << nu
-                                                              << "\teta   " << std::setw(8) << eta << std::endl;
+                                                              << "\tOdd  " << std::setw(8) << isOdd
+                                                              << "\teta  " << std::setw(8) << eta << std::endl;
                                          }
 
 // private:
@@ -66,4 +67,3 @@ private:
 };
 
 #endif	/* NONLINEARPOLET2V3_H */
-

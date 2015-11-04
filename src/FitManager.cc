@@ -166,7 +166,7 @@ void FitManager::DrawApproximation()
 		DrawFitFunction(processes[i]); 
 	}
 	main_canvas->Show(); 
-	main_canvas->SaveAs(TString::Format("Plots_with_pp%.2g_pap_%.2g_.png", ds_pp_energy, ds_pbp_energy));
+	main_canvas->SaveAs(TString::Format("plots_with_pp%.2g_pap_%.2g_.png", ds_pp_energy, ds_pbp_energy));
 }
 
 void FitManager::CreateGraph(PhysicalProcess& proc)
@@ -278,7 +278,7 @@ double FitManager::chi2(const double * parameters = 0)
 		TheoreticalModel computor(currentModel); 
 
 		int npoints = processes[i].numberOfpoints;
-#pragma omp parallel for firstprivate(computor) reduction(+:chi2_per_process) num_threads(4)
+// #pragma omp parallel for firstprivate(computor) reduction(+:chi2_per_process) num_threads(4)
 		for(int j = 0;  j <  npoints; ++j)
 		{
 			const DataPoint & p = processes[i].experimentalPoints[j]; 
@@ -289,13 +289,13 @@ double FitManager::chi2(const double * parameters = 0)
 			
 
 			// std::cout << std::setw(8) << p.energy << "\t" 
-		              // << std::setw(8) << p.t << "\t" 
-		              // << std::setw(8) << p.observable << "\t" 
-		              // << std::setw(8) << y << "\terror\t" 
-		              // << std::setw(8) << p.error << "\t" 
-					  // << processes[i].dataCode << "\t" 
-					  // << std::setw(8) << delta * delta << std::endl;
-
+		 //              << std::setw(8) << p.t << "\t" 
+		 //              << std::setw(8) << p.observable << "\t" 
+		 //              << std::setw(8) << y << "\terror\t" 
+		 //              << std::setw(8) << p.error << "\t" 
+			// 		  << processes[i].dataCode << "\t" 
+			// 		  << std::setw(8) << delta * delta << std::endl;
+// 
 			chi2_per_process += delta * delta; 
 		}
 		// std::cout << "Chi^2/ndof per process: " << chi2_per_process / processes[i].numberOfpoints << " for "  << processes[i].dataCode << std::endl; 

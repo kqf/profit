@@ -32,19 +32,20 @@ int main(int argc, char** argv)
 	std::vector<PhysicalProcess> input_vector(input_array, input_array + sizeof(input_array) / sizeof(PhysicalProcess));
 
 	FitManager & manager = FitManager::GetFitManager();
-	manager.GetData("FakeData.root", input_vector); 
+	manager.GetData("FakeDataTruncated.root", input_vector); 
+	// manager.GetData("FakeData.root", input_vector);  // Smaller chi^2 ~ 277
 	manager.GetParameters("parameters.in"); 
-	// manager.GetParameters("linear_parameters.in"); 
-	manager.DrawApproximation(); 
+	// manager.GetParameters("linear_parameters2.in"); 
+	// manager.DrawApproximation(); 
 
    TStopwatch timer; 
-   timer.Start(); 
+   // timer.Start(); 
 	 manager.PerformMinimization(); 
-   timer.Stop(); 
+   // timer.Stop(); 
    std::cout << "It takes " << timer.RealTime() / 60 << " to calculate chi^2." << std::endl; 
 
 
-	app->Run();
+	// app->Run();
 	return 0;
 }
 

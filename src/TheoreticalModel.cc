@@ -25,18 +25,19 @@ void TheoreticalModel::SetParameters(const double * par)
 {
     double mup = par[0];
     double eta = par[1];
-    double muo = par[3];
-    double phi = par[4];
+    double muo = par[2];
+    double phi = par[3];
     int skipped = 4;
+    // int skipped = 0;
     AbstractPole * pomeron = NonlinearPoleT2V3::MakeNonlinearPole(par + skipped, mup, eta);
     skipped = skipped + NonlinearPoleT2V3::nImputParamets - 2;
 
     AbstractPole * odderon = NonlinearPoleT2V3::MakeNonlinearPole(par + skipped, muo, phi);
     skipped = skipped + NonlinearPoleT2V3::nImputParamets - 2;
 
-    // int skipped = 12;
-    // int skipped = 6;
+
     poles = ReggePole::MakePoles(par + skipped , npars - 1 - skipped); 
+    // poles = ReggePole::MakePoles(par + skipped , 0); 
     poles.push_back(pomeron);
     poles.push_back(odderon);
 
@@ -69,7 +70,7 @@ double TheoreticalModel::GetTheoreticalValue(double  energy
     switch(observableType)
     {
 	case 1:
-	    observable =  (k / flux) * (8 * M_PI * s) * A.imag();
+	    observable =  (k ) * (8 * M_PI) * A.imag();
 	    break; 
 	case 2:
 	    observable = A.real() / A.imag(); 
@@ -108,9 +109,9 @@ double TheoreticalModel::BesselTransform(double(*function)(double,void*), bool w
 
     double result = 0;
     double error  = 0;
-    double precision_abs = 1e-4;
-    double precision_rel = 1e-4;
-    int workspace = 1e+4;
+    double precision_abs = 1e-3;
+    double precision_rel = 1e-3;
+    int workspace = 1e+3;
     
     
     // TODO: remove this invocation from here!!!
@@ -124,7 +125,7 @@ double TheoreticalModel::BesselTransform(double(*function)(double,void*), bool w
     if(whole_range)
     	status = gsl_integration_qagiu (&F, 0, precision_abs, precision_rel, workspace, w, &result, &error); 
     else
-        status = gsl_integration_qags  (&F, 0, 40, precision_abs, precision_rel, workspace, w, &result, &error); 
+        status = gsl_integration_qags  (&F, 0, 25, precision_abs, precision_rel, workspace, w, &result, &error); 
 
     if (status == GSL_ESING)
     {
@@ -152,6 +153,13 @@ double TheoreticalModel::GetH(double impactb)
     complexd H = Unitarize(h);
 
     b = impactb; 
+    // char separator = ' ';
+    // std::cout << sqrt(s)
+            // << std::setw(12) <<  std::setfill(separator) << t 
+            // << std::setw(12) <<  std::setfill(separator) << b
+            // << std::setw(26) <<  std::setfill(separator) << h
+            // << std::endl;
+
     double integrand =  b * gsl_sf_bessel_J0(sqrt(t) * b); 
     if(calculateImagH)
 	return H.imag() * integrand;

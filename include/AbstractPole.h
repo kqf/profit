@@ -29,7 +29,10 @@ public:
 private:
     virtual complexd PureAmplitude(const double & s, const double & t) const  = 0; 
 
+protected:
     bool isOdd; 
+    
+private:
     complexd coef; 
 
 };
