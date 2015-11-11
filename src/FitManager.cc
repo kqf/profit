@@ -278,11 +278,11 @@ double FitManager::chi2(const double * parameters = 0)
 		TheoreticalModel computor(currentModel); 
 
 		int npoints = processes[i].numberOfpoints;
-// #pragma omp parallel for firstprivate(computor) reduction(+:chi2_per_process) num_threads(4)
+#pragma omp parallel for firstprivate(computor) reduction(+:chi2_per_process) num_threads(4)
 		for(int j = 0;  j <  npoints; ++j)
 		{
 			const DataPoint & p = processes[i].experimentalPoints[j]; 
-			if(p.ignore) continue; 
+			// if(p.ignore) continue; 
 
 			double y =  computor.GetTheoreticalValue(p.energy, p.t);
 			double delta =  (p.observable - y)/ p.error ; 
@@ -319,10 +319,12 @@ void FitManager::PerformMinimization()
 	std::cout << "Showing fcn" << std::endl;
 	gMinimizer->mnexcm("SHO FCN", arglist, 2, ierflag);
 
+	std::fstream fout("parameters.in");
 	for (int i = 0; i < fit_parameters.size(); ++i)
 	{
+		fit_parameters[i].value	 = 0;
 		gMinimizer->GetParameter(i, fit_parameters[i].value, arglist[9]);
-		std::cout << fit_parameters[i];
+		fout << fit_parameters[i];
     }
 }
 

@@ -33,16 +33,16 @@ int main(int argc, char** argv)
 
 	FitManager & manager = FitManager::GetFitManager();
 	manager.GetData("FakeDataTruncated.root", input_vector); 
-	// manager.GetData("FakeData.root", input_vector);  // Smaller chi^2 ~ 277
+	// manager.GetData("FakeData.root", input_vector);
 	manager.GetParameters("parameters.in"); 
 	// manager.GetParameters("linear_parameters2.in"); 
 	// manager.DrawApproximation(); 
 
    TStopwatch timer; 
-   // timer.Start(); 
+   timer.Start(); 
 	 manager.PerformMinimization(); 
-   // timer.Stop(); 
-   std::cout << "It takes " << timer.RealTime() / 60 << " to calculate chi^2." << std::endl; 
+   timer.Stop(); 
+   std::cout << "It takes " << timer.RealTime() / 60 << " min to calculate chi^2." << std::endl; 
 
 
 	// app->Run();

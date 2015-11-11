@@ -29,17 +29,22 @@ void TheoreticalModel::SetParameters(const double * par)
     double phi = par[3];
     int skipped = 4;
     // int skipped = 0;
-    AbstractPole * pomeron = NonlinearPoleT2V3::MakeNonlinearPole(par + skipped, mup, eta);
+    
+    AbstractPole * pomeron1 = NonlinearPoleT2V3::MakeNonlinearPole(par + skipped, mup, eta);
     skipped = skipped + NonlinearPoleT2V3::nImputParamets - 2;
 
-    AbstractPole * odderon = NonlinearPoleT2V3::MakeNonlinearPole(par + skipped, muo, phi);
+    AbstractPole * pomeron2 = NonlinearPoleT2V3::MakeNonlinearPole(par + skipped, mup, eta);
+    skipped = skipped + NonlinearPoleT2V3::nImputParamets - 2;
+
+    AbstractPole * odderon1 = NonlinearPoleT2V3::MakeNonlinearPole(par + skipped, muo, phi);
     skipped = skipped + NonlinearPoleT2V3::nImputParamets - 2;
 
 
     poles = ReggePole::MakePoles(par + skipped , npars - 1 - skipped); 
     // poles = ReggePole::MakePoles(par + skipped , 0); 
-    poles.push_back(pomeron);
-    poles.push_back(odderon);
+    poles.push_back(pomeron1);
+    poles.push_back(pomeron2);
+    poles.push_back(odderon1);
 
     // TODO: check correctness of 2 * i * lambda
     ilambda = complexd(0, 2 * par[npars - 1]); 
