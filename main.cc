@@ -13,6 +13,7 @@
 
 #include "FitManager.h"
 #include "PhysicalProcess.h"
+#include "ncurses.h"
 
 
 using namespace std;
@@ -45,6 +46,7 @@ int main(int argc, char** argv)
    std::cout << "It takes " << timer.RealTime() / 60 << " min to calculate chi^2." << std::endl; 
 
 
+   	beep();
 	// app->Run();
 	return 0;
 }

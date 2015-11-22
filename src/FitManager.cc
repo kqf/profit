@@ -268,6 +268,7 @@ double FitManager::chi2(const double * parameters = 0)
 	if(parameters != 0) 
 		currentModel.SetParameters(parameters);
 
+
 	double result = 0; 
 	double chi2_per_process = 0; 
 	for(int i = 0; i < processes.size() ; ++i )
@@ -284,6 +285,7 @@ double FitManager::chi2(const double * parameters = 0)
 			const DataPoint & p = processes[i].experimentalPoints[j]; 
 			// if(p.ignore) continue; 
 
+			// std::cout << " Calculating >> " << std::endl;
 			double y =  computor.GetTheoreticalValue(p.energy, p.t);
 			double delta =  (p.observable - y)/ p.error ; 
 			
@@ -293,8 +295,8 @@ double FitManager::chi2(const double * parameters = 0)
 		 //              << std::setw(8) << p.observable << "\t" 
 		 //              << std::setw(8) << y << "\terror\t" 
 		 //              << std::setw(8) << p.error << "\t" 
-			// 		  << processes[i].dataCode << "\t" 
-			// 		  << std::setw(8) << delta * delta << std::endl;
+					  // << processes[i].dataCode << "\t" 
+					  // << std::setw(8) << delta * delta << std::endl;
 // 
 			chi2_per_process += delta * delta; 
 		}
@@ -312,10 +314,15 @@ void FitManager::PerformMinimization()
 
 	double arglist[10];
 	int ierflag = 0; 
-	arglist[0] = 500; 
-	arglist[1] = 1.; 
+	arglist[0] = 10; 
+	arglist[1] = 0.; 
+	// gMinimizer->mnexcm("SET PRI", arglist + 1,  1, ierflag);
+	// gMinimizer->mnexcm("SHO FCN", arglist, 2, ierflag);
 	// gMinimizer->mnexcm("MINIMIZE", arglist, 2, ierflag);
+
+	ierflag = 0; 
 	// gMinimizer->mnexcm("MIGRAD", arglist, 2, ierflag);
+
 	std::cout << "Showing fcn" << std::endl;
 	gMinimizer->mnexcm("SHO FCN", arglist, 2, ierflag);
 

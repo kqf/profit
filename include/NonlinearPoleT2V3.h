@@ -30,6 +30,7 @@ public:
                                                               << "\tgamma" << std::setw(8) << gamma
                                                               << "\ttr   " << std::setw(8) << tr
                                                               << "\tg    " << std::setw(8) << g
+                                                              << "\tTau  " << std::setw(8) << Tau 
                                                               << "\tB    " << std::setw(8) << B
                                                               << "\tC    " << std::setw(8) << C
                                                               << "\tnu   " << std::setw(8) << nu
@@ -41,16 +42,16 @@ public:
     // this is number of input parameters in constructor!
     // if you modify the constructor --- you should modify 
     // this number too !!
-    enum {nImputParamets = 9}; 
+    enum {nImputParamets = 10}; 
 
 public:
     NonlinearPoleT2V3(const double & a, const double & b,
                       const double & c, const double & d,
                       const double & e, const double & f,
                       const double & j, const double & k, 
-                      bool odd):
+                      const double & l, bool odd):
 
-    a0(a), gamma(b), tr(c), g(d), B(e), C(f), nu(j), eta(k), AbstractPole(odd) {}
+    a0(a), gamma(b), tr(c), g(d), Tau(e), B(f), C(j), nu(k), eta(l), AbstractPole(odd) {}
 
 private:
     
@@ -60,6 +61,7 @@ private:
     double gamma;
     double tr;
     double g;
+    double Tau; 
     double B; 
     double C; 
     double nu;
