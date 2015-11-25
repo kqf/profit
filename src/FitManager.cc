@@ -265,6 +265,10 @@ void FitManager::SetupMinimizer()
 // TODO:: No default values here
 double FitManager::chi2(const double * parameters = 0) 
 {
+	static int i = 0;
+	++i;
+
+	std::cout << "Calling fcn for "  << i << " times" << std::endl;
 	if(parameters != 0) 
 		currentModel.SetParameters(parameters);
 
@@ -314,14 +318,16 @@ void FitManager::PerformMinimization()
 
 	double arglist[10];
 	int ierflag = 0; 
-	arglist[0] = 10; 
+	arglist[0] = 100; 
+	arglist[1] = 3.; 
+	gMinimizer->mnexcm("SET PRI", arglist + 1,  1, ierflag);
+
 	arglist[1] = 0.; 
-	// gMinimizer->mnexcm("SET PRI", arglist + 1,  1, ierflag);
-	// gMinimizer->mnexcm("SHO FCN", arglist, 2, ierflag);
+	gMinimizer->mnexcm("SHO FCN", arglist, 2, ierflag);
 	// gMinimizer->mnexcm("MINIMIZE", arglist, 2, ierflag);
 
 	ierflag = 0; 
-	// gMinimizer->mnexcm("MIGRAD", arglist, 2, ierflag);
+	gMinimizer->mnexcm("MIGRAD", arglist, 2, ierflag);
 
 	std::cout << "Showing fcn" << std::endl;
 	gMinimizer->mnexcm("SHO FCN", arglist, 2, ierflag);
