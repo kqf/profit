@@ -33,9 +33,9 @@ int main(int argc, char** argv)
 	std::vector<PhysicalProcess> input_vector(input_array, input_array + sizeof(input_array) / sizeof(PhysicalProcess));
 
 	FitManager & manager = FitManager::GetFitManager();
-	manager.GetData("FakeDataTruncated.root", input_vector); 
-	// manager.GetData("FakeData.root", input_vector);
-	manager.GetParameters("parameters.in"); 
+	manager.GetData("/afs/cern.ch/user/o/okovalen/private/bitp/regge-amplitude-analysis/Data.root", input_vector); 
+	// manager.GetData("Data.root", input_vector);
+	manager.GetParameters("/afs/cern.ch/user/o/okovalen/private/bitp/regge-amplitude-analysis/parameters.in"); 
 	// manager.GetParameters("linear_parameters2.in"); 
 	// manager.DrawApproximation(); 
 

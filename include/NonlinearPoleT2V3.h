@@ -30,12 +30,12 @@ public:
                                                               << "\tgamma" << std::setw(8) << gamma
                                                               << "\ttr   " << std::setw(8) << tr
                                                               << "\tg    " << std::setw(8) << g
-                                                              << "\tTau  " << std::setw(8) << Tau 
                                                               << "\tB    " << std::setw(8) << B
+                                                              << "\tTau  " << std::setw(8) << Tau 
                                                               << "\tC    " << std::setw(8) << C
                                                               << "\tnu   " << std::setw(8) << nu
-                                                              << "\tOdd  " << std::setw(8) << isOdd
-                                                              << "\teta  " << std::setw(8) << eta << std::endl;
+                                                              << "\teta  " << std::setw(8) << eta 
+                                                              << "\tOdd  " << std::setw(8) << isOdd << std::endl;
                                          }
 
 // private:
@@ -51,7 +51,7 @@ public:
                       const double & j, const double & k, 
                       const double & l, bool odd):
 
-    a0(a), gamma(b), tr(c), g(d), Tau(e), B(f), C(j), nu(k), eta(l), AbstractPole(odd) {}
+    a0(a), gamma(b), tr(c), g(d), B(e), Tau(f), C(j), nu(k), eta(l), AbstractPole(odd) {/*PrintParameters();*/}
 
 private:
     

@@ -36,7 +36,15 @@ void TheoreticalModel::SetParameters(const double * par)
     AbstractPole * pomeron2 = NonlinearPoleT2V3::MakeNonlinearPole(par + skipped, mup, eta);
     skipped = skipped + NonlinearPoleT2V3::nImputParamets - 2;
 
+    // Needed for backwards compatibility
+    // AbstractPole * pomeron3 = NonlinearPoleT2V3::MakeNonlinearPole(par + skipped, mup, eta);
+    skipped = skipped + NonlinearPoleT2V3::nImputParamets - 2;
+
     AbstractPole * odderon1 = NonlinearPoleT2V3::MakeNonlinearPole(par + skipped, muo, phi);
+    skipped = skipped + NonlinearPoleT2V3::nImputParamets - 2;
+
+    // Needed for backwards compatibility
+    // AbstractPole * odderon2 = NonlinearPoleT2V3::MakeNonlinearPole(par + skipped, muo, phi);
     skipped = skipped + NonlinearPoleT2V3::nImputParamets - 2;
 
 
@@ -44,7 +52,10 @@ void TheoreticalModel::SetParameters(const double * par)
     // poles = ReggePole::MakePoles(par + skipped , 0); 
     poles.push_back(pomeron1);
     poles.push_back(pomeron2);
+    // poles.push_back(pomeron3);
+
     poles.push_back(odderon1);
+    // poles.push_back(odderon2);
 
     // TODO: check correctness of 2 * i * lambda
     ilambda = complexd(0, 2 * par[npars - 1]); 

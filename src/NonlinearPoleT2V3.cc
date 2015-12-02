@@ -17,11 +17,11 @@ NonlinearPoleT2V3::complexd NonlinearPoleT2V3::PureAmplitude(const double & s, c
     double tt = -t;
     double alpha = a0 + gamma * ( pow(tr, nu) -  pow(tr - tt, nu) );
 
-    double V = exp( B * (sqrt(Tau) - sqrt(Tau - tt)) );// beta -> B
+    // double V = exp( B * (sqrt(Tau) - sqrt(Tau - tt)) );// beta -> B
     // double V = exp( B * (pow(Tau, nu) - pow(Tau - tt, nu)) )// beta -> B
     // PrintParameters();
 
-    // double V =  C * exp(B * tt) + (1. - C)  * pow(1. - tt/Tau, -eta);
+    double V =  C * exp(B * tt) + (1. - C)  * pow(1. - tt/Tau, -eta);
     complexd i(0, 1);
     return  g * pow(-1. * i * s, alpha) * V;
 }
