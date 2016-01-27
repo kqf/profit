@@ -33,7 +33,7 @@ int main(int argc, char** argv)
 	std::vector<PhysicalProcess> input_vector(input_array, input_array + sizeof(input_array) / sizeof(PhysicalProcess));
 
 	FitManager & manager = FitManager::GetFitManager();
-	manager.GetData("/afs/cern.ch/user/o/okovalen/private/bitp/regge-amplitude-analysis/Data.root", input_vector); 
+	manager.GetData("/afs/cern.ch/user/o/okovalen/private/bitp/regge-amplitude-analysis/FakeDataTruncated.root", input_vector); 
 	// manager.GetData("Data.root", input_vector);
 	manager.GetParameters("/afs/cern.ch/user/o/okovalen/private/bitp/regge-amplitude-analysis/parameters.in"); 
 	// manager.GetParameters("linear_parameters2.in"); 
@@ -46,7 +46,7 @@ int main(int argc, char** argv)
    std::cout << "It takes " << timer.RealTime() / 60 << " min to calculate chi^2." << std::endl; 
 
 
-   	beep();
+   	// beep();
 	// app->Run();
 	return 0;
 }

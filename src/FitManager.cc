@@ -265,10 +265,9 @@ void FitManager::SetupMinimizer()
 // TODO:: No default values here
 double FitManager::chi2(const double * parameters = 0) 
 {
-	static int i = 0;
-	++i;
-
-	std::cout << "Calling fcn for "  << i << " times" << std::endl;
+	//static int i = 0;
+	//++i;
+	//std::cout << "Calling fcn for "  << i << " times" << std::endl;
 	if(parameters != 0) 
 		currentModel.SetParameters(parameters);
 
@@ -283,7 +282,7 @@ double FitManager::chi2(const double * parameters = 0)
 		TheoreticalModel computor(currentModel); 
 
 		int npoints = processes[i].numberOfpoints;
-#pragma omp parallel for firstprivate(computor) reduction(+:chi2_per_process) num_threads(4)
+#pragma omp parallel for firstprivate(computor) reduction(+:chi2_per_process)
 		for(int j = 0;  j <  npoints; ++j)
 		{
 			const DataPoint & p = processes[i].experimentalPoints[j]; 
@@ -318,21 +317,22 @@ void FitManager::PerformMinimization()
 
 	double arglist[10];
 	int ierflag = 0; 
-	arglist[0] = 100; 
+	arglist[0] = 500; 
+	arglist[1] = 0.; 
+	gMinimizer->mnexcm("SHO FCN", arglist, 2, ierflag);
+	gMinimizer->mnexcm("SET STR", arglist + 1,  1, ierflag);
 	arglist[1] = 3.; 
 	gMinimizer->mnexcm("SET PRI", arglist + 1,  1, ierflag);
 
-	arglist[1] = 0.; 
-	gMinimizer->mnexcm("SHO FCN", arglist, 2, ierflag);
-	// gMinimizer->mnexcm("MINIMIZE", arglist, 2, ierflag);
-
 	ierflag = 0; 
-	gMinimizer->mnexcm("MIGRAD", arglist, 2, ierflag);
+	//gMinimizer->mnexcm("MIGRAD", arglist, 2, ierflag);
+	gMinimizer->mnexcm("SIMPLEX", arglist, 2, ierflag);
 
 	std::cout << "Showing fcn" << std::endl;
 	gMinimizer->mnexcm("SHO FCN", arglist, 2, ierflag);
 
-	std::fstream fout("parameters.in");
+	std::fstream fout("/afs/cern.ch/user/o/okovalen/private/bitp/regge-amplitude-analysis/parameters.in");
+	// std::fstream fout("parameters.in");
 	for (int i = 0; i < fit_parameters.size(); ++i)
 	{
 		fit_parameters[i].value	 = 0;
