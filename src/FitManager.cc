@@ -317,7 +317,7 @@ void FitManager::PerformMinimization()
 
 	double arglist[10];
 	int ierflag = 0; 
-	arglist[0] = 500; 
+	arglist[0] = 800; 
 	arglist[1] = 0.; 
 	gMinimizer->mnexcm("SHO FCN", arglist, 2, ierflag);
 	gMinimizer->mnexcm("SET STR", arglist + 1,  1, ierflag);
@@ -325,13 +325,13 @@ void FitManager::PerformMinimization()
 	gMinimizer->mnexcm("SET PRI", arglist + 1,  1, ierflag);
 
 	ierflag = 0; 
-	//gMinimizer->mnexcm("MIGRAD", arglist, 2, ierflag);
-	gMinimizer->mnexcm("SIMPLEX", arglist, 2, ierflag);
+    gMinimizer->mnexcm("MIGRAD", arglist, 2, ierflag);
+	//gMinimizer->mnexcm("SIMPLEX", arglist, 2, ierflag);
 
 	std::cout << "Showing fcn" << std::endl;
 	gMinimizer->mnexcm("SHO FCN", arglist, 2, ierflag);
 
-	std::fstream fout("/afs/cern.ch/user/o/okovalen/private/bitp/regge-amplitude-analysis/parameters.in");
+	std::fstream fout("/home/okovalen/nonlinear-trajectories/parameters.in");
 	// std::fstream fout("parameters.in");
 	for (int i = 0; i < fit_parameters.size(); ++i)
 	{

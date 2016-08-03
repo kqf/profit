@@ -15,7 +15,9 @@ NonlinearPoleT2V3::complexd NonlinearPoleT2V3::PureAmplitude(const double & s, c
 {
 
     double tt = -t;
-    double alpha = a0 + gamma * ( pow(tr, nu) -  pow(tr - tt, nu) );
+    double alpha = isOdd ? a0 + gamma * tt : a0 + gamma * ( pow(tr, nu) -  pow(tr - tt, nu) );
+
+    // std::cout << "alpha " << nu  << " "  << eta << std::endl;
 
     // double V = exp( B * (sqrt(Tau) - sqrt(Tau - tt)) );// beta -> B
     // double V = exp( B * (pow(Tau, nu) - pow(Tau - tt, nu)) )// beta -> B
@@ -41,8 +43,8 @@ std::vector<AbstractPole * > NonlinearPoleT2V3::MakePoles(const double * p, cons
 }
 
 
-AbstractPole *  NonlinearPoleT2V3::MakeNonlinearPole(const double * p, const double & nu, const double & eta)
+AbstractPole *  NonlinearPoleT2V3::MakeNonlinearPole(const double * p, const double & nu)
 {
 
-    return new NonlinearPoleT2V3(p[0], p[1], p[2], p[3], p[4], p[5], p[6], nu, eta, p[nImputParamets - 3] < 0 );
+    return new NonlinearPoleT2V3(p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7], nu, p[nImputParamets - 2] < 0 );
 }

@@ -24,7 +24,7 @@ private:
 public:
 //    complexd Amplitude(const double & s, const double & t, bool) const; 
     static std::vector<AbstractPole *> MakePoles(const double *, const int &); 
-    static AbstractPole * MakeNonlinearPole(const double * p, const double & nu, const double & eta);
+    static AbstractPole * MakeNonlinearPole(const double * p, const double & nu);
 
     virtual void PrintParameters() const {          std::cout << "a0   " << std::setw(8) << a0
                                                               << "\tgamma" << std::setw(8) << gamma
@@ -33,8 +33,8 @@ public:
                                                               << "\tB    " << std::setw(8) << B
                                                               << "\tTau  " << std::setw(8) << Tau 
                                                               << "\tC    " << std::setw(8) << C
-                                                              << "\tnu   " << std::setw(8) << nu
                                                               << "\teta  " << std::setw(8) << eta 
+                                                              << "\tnu   " << std::setw(8) << nu
                                                               << "\tOdd  " << std::setw(8) << isOdd << std::endl;
                                          }
 
@@ -51,7 +51,7 @@ public:
                       const double & j, const double & k, 
                       const double & l, bool odd):
 
-    a0(a), gamma(b), tr(c), g(d), B(e), Tau(f), C(j), nu(k), eta(l), AbstractPole(odd) {/*PrintParameters();*/}
+    a0(a), gamma(b), tr(c), g(d), B(e), Tau(f), C(j), eta(k), nu(l), AbstractPole(odd) {/*PrintParameters();*/}
 
 private:
     

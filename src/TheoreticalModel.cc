@@ -23,30 +23,21 @@ TheoreticalModel::TheoreticalModel(const double * par, int n):npars(n)
 
 void TheoreticalModel::SetParameters(const double * par)
 {
-    double mup = par[0];
-    double eta = par[1];
-    double muo = par[2];
-    double phi = par[3];
-    int skipped = 4;
+    double nu = par[0];
+    int skipped = 1;
     // int skipped = 0;
     
-    AbstractPole * pomeron1 = NonlinearPoleT2V3::MakeNonlinearPole(par + skipped, mup, eta);
-    skipped = skipped + NonlinearPoleT2V3::nImputParamets - 2;
+    AbstractPole * pomeron1 = NonlinearPoleT2V3::MakeNonlinearPole(par + skipped, nu);
+    skipped = skipped + NonlinearPoleT2V3::nImputParamets - 1;
 
-    AbstractPole * pomeron2 = NonlinearPoleT2V3::MakeNonlinearPole(par + skipped, mup, eta);
-    skipped = skipped + NonlinearPoleT2V3::nImputParamets - 2;
+    AbstractPole * pomeron2 = NonlinearPoleT2V3::MakeNonlinearPole(par + skipped, nu);
+    skipped = skipped + NonlinearPoleT2V3::nImputParamets - 1;
 
-    // Needed for backwards compatibility
-    // AbstractPole * pomeron3 = NonlinearPoleT2V3::MakeNonlinearPole(par + skipped, mup, eta);
-    skipped = skipped + NonlinearPoleT2V3::nImputParamets - 2;
+    // std::cout << pomeron1->Amplitude(0.194200e+02 * 0.194200e+02, -0.389564e-02, false) << std::endl;
+    // return;
 
-    AbstractPole * odderon1 = NonlinearPoleT2V3::MakeNonlinearPole(par + skipped, muo, phi);
-    skipped = skipped + NonlinearPoleT2V3::nImputParamets - 2;
-
-    // Needed for backwards compatibility
-    // AbstractPole * odderon2 = NonlinearPoleT2V3::MakeNonlinearPole(par + skipped, muo, phi);
-    skipped = skipped + NonlinearPoleT2V3::nImputParamets - 2;
-
+    AbstractPole * odderon1 = NonlinearPoleT2V3::MakeNonlinearPole(par + skipped, 0);
+    skipped = skipped + NonlinearPoleT2V3::nImputParamets - 1;
 
     poles = ReggePole::MakePoles(par + skipped , npars - 1 - skipped); 
     // poles = ReggePole::MakePoles(par + skipped , 0); 
