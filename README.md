@@ -10,7 +10,7 @@ For BITP one should check if environment is properly set.
 
 
 ## Submit your job ##
-Submit jobs in 2 weeks queue at lxplus with `16` threads:  
+Submit jobs to 2 weeks queue at `lxplus` with `16` threads:  
 ```
 #!bash
 bsub -q 2nw -n 16 -R "span[hosts=1]" nonlinear.sh
