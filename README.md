@@ -3,6 +3,16 @@ Amplitude analysis:
 
 Performs minimization of `A(s, t)` amplitude function.
 
+## Run ##
+This par remains the same for all the machines.
+
+```bash
+!bash
+
+./profit /full/path/to/your/data-and-parameters
+
+```
+
 
 ## Build ##
 Environtment is fine on `lxplus`. 
@@ -28,7 +38,7 @@ bkill -u username
 
 BITP cluster:
 
-```
+```bash
 #!bash
 # ssh -XYt xxx@clusterui.bitp.kiev.ua
 # cd nonlinear-trajectories

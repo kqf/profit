@@ -8,7 +8,7 @@
 cd /home/okovalen/nonlinear-trajectories
 date  >> someoutput
 source /home/okovalen/.configure_env.sh  &>> someoutput
-./profit &>> someoutput
+./profit /home/okovalen/nonlinear-trajectories/ &>> someoutput
 echo "Worked somehow" >> someoutput
 date >> someoutput
 
