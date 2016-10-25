@@ -7,7 +7,7 @@ Performs minimization of `A(s, t)` amplitude function.
 This par remains the same for all the machines.
 
 ```bash
-!bash
+#!bash
 
 ./profit /full/path/to/your/data-and-parameters
 
