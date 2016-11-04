@@ -52,6 +52,21 @@ qstat
 qdel 123456
 ```
 
+For DESY cluster more information can be found [here](https://it.desy.de/dienste/computing_infrastruktur/bird_cluster_allgemeine_batch_farm_englisch/index_ger.html).
+
+
+```bash
+#!bash
+qsub desy-pnonlinear-trajectory.sh
+
+# check status
+qstat -j <job id>
+
+# delete 
+qdel 123456
+```
+
+
 ## Warning(s)##
 Remember to copy your `.root` files before submitting your jobs.
 
