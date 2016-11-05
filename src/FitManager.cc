@@ -325,7 +325,7 @@ void FitManager::PerformMinimization(const char * outputfile)
 	gMinimizer->mnexcm("SET PRI", arglist + 1,  1, ierflag);
 
 	ierflag = 0;
-	arglist[0] = 600;
+	arglist[0] = 200;
 	arglist[1] = 1.;
     gMinimizer->mnexcm("MIGRAD", arglist, 2, ierflag);
 	//gMinimizer->mnexcm("SIMPLEX", arglist, 2, ierflag);
