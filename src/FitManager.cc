@@ -328,8 +328,8 @@ void FitManager::PerformMinimization(const char * outputfile)
 	ierflag = 0;
 	arglist[0] = 3000;
 	arglist[1] = 0.01;
-	//gMinimizer->mnexcm("MIGRAD", arglist, 2, ierflag);
-	gMinimizer->mnexcm("SIMPLEX", arglist, 2, ierflag);
+	gMinimizer->mnexcm("MIGRAD", arglist, 2, ierflag);
+	// gMinimizer->mnexcm("SIMPLEX", arglist, 2, ierflag);
 
 	std::cout << "Showing fcn" << std::endl;
 	gMinimizer->mnexcm("SHO FCN", arglist, 2, ierflag);
