@@ -1,9 +1,11 @@
-#!/bin/bash
-#PBS -q long
+#PBS -k oe
 #PBS -l nodes=1:ppn=30
-#PBS -o /home/okovalen/test/
-#PBS -j oe
+#PBS -M petrov.knu@gmail.com
+#PBS -m abe
+#PBS -q long
 #PBS -N nonlinear-trajectory
+#!/bin/bash
+
 
 cd /home/okovalen/nonlinear-trajectories
 date  >> someoutput
