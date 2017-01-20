@@ -12,3 +12,8 @@ include $(wildcard   *.d)
 .PHONY: clean
 clean:
 	rm *.o *.d
+
+# run bath job on CIS cluster
+#
+launch:
+	qsub -N t-nonlinear -q i12h -l nodes=1:ppn=40 cnonlinear-trajectory.sh 
