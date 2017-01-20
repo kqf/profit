@@ -16,4 +16,4 @@ clean:
 # run bath job on CIS cluster
 #
 launch:
-	qsub -N t-nonlinear -q i12h -l nodes=1:ppn=40 cnonlinear-trajectory.sh 
+	qsub -N t-nonlinear -q i14d -l nodes=1:ppn=40 cnonlinear-trajectory.sh 
