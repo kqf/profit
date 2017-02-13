@@ -331,7 +331,7 @@ void FitManager::PerformMinimization(const char * outputfile)
 	// gMinimizer->mnexcm("MIGRAD", arglist, 2, ierflag);
 	gMinimizer->mnexcm("SIMPLEX", arglist, 2, ierflag);
 	arglist[0] = 1000;
-	gMinimizer->mnexcm("MIGRAD", arglist, 2, ierflag);
+	// gMinimizer->mnexcm("MIGRAD", arglist, 2, ierflag);
 
 	std::cout << "Showing fcn" << std::endl;
 	gMinimizer->mnexcm("SHO FCN", arglist, 2, ierflag);
@@ -348,7 +348,7 @@ void FitManager::PerformMinimization(const char * outputfile)
 	{
 		fit_parameters[i].value	 = 0;
 		gMinimizer->GetParameter(i, fit_parameters[i].value, arglist[9]);
-		fout << fit_parameters[i];
+		fout << std::setprecision(12) << fit_parameters[i];
 	}
 }
 
