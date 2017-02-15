@@ -348,7 +348,7 @@ void FitManager::PerformMinimization(const char * outputfile)
 	{
 		fit_parameters[i].value	 = 0;
 		gMinimizer->GetParameter(i, fit_parameters[i].value, arglist[9]);
-		fout << std::setprecision(12) << fit_parameters[i];
+		fout << std::setw(14) <<  std::setprecision(12) << fit_parameters[i];
 	}
 }
 
