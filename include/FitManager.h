@@ -30,7 +30,7 @@ public:
     void GetData(const char * filename, std::vector<PhysicalProcess> input);
     void GetParameters(const char * filename);
     void DrawApproximation();
-    void PerformMinimization(const char * ofile);
+    double PerformMinimization(const char * ofile,int nsimplex = 5000, int nmigrad = 1000);
     double chi2(const double * parameters) ; 
 
 private:

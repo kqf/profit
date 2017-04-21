@@ -241,11 +241,11 @@ void FitManager::SetupMinimizer()
 {
 	int npars = fit_parameters.size();
 
-	assert(npars != 0 && "Cannot initialize minimizer with 0 input parameters");
+	// assert(npars != 0 && "Cannot initialize minimizer with 0 input parameters");
 	gMinimizer = new TMinuit(npars);
 	gMinimizer->SetFCN(fcn);
 
-	//    TODO: Implement parameters properties
+	// TODO: Implement parameters properties
 	double arglist[10];
 	int ierflg = 0;
 
@@ -310,7 +310,7 @@ double FitManager::chi2(const double * parameters = 0)
 }
 
 
-void FitManager::PerformMinimization(const char * outputfile)
+double FitManager::PerformMinimization(const char * outputfile, int nsimplex, int nmigrad)
 {
 	if (gMinimizer == 0)
 		SetupMinimizer();
@@ -325,12 +325,20 @@ void FitManager::PerformMinimization(const char * outputfile)
 	// arglist[1] = 3.;
 	// gMinimizer->mnexcm("SET PRI", arglist + 1,  1, ierflag);
 
+	if(!nsimplex && !nmigrad)
+	{
+		gMinimizer->mnexcm("SHO FCN", arglist, 2, ierflag);
+		// TOOD: Fix this. What is the proper way of extracting FCN from this?
+		return 137.0;
+	}
+
+
 	ierflag = 0;
-	arglist[0] = 5000;
+	arglist[0] = nsimplex;
 	arglist[1] = 0.00001;
 	// gMinimizer->mnexcm("MIGRAD", arglist, 2, ierflag);
 	gMinimizer->mnexcm("SIMPLEX", arglist, 2, ierflag);
-	arglist[0] = 1000;
+	arglist[0] = nmigrad;
 	gMinimizer->mnexcm("MIGRAD", arglist, 2, ierflag);
 
 	std::cout << "Showing fcn" << std::endl;

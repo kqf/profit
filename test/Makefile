@@ -1,4 +1,4 @@
-TARGETS = test_pole
+TARGETS = test_pole test_amplitude
 LIBS = ../*.o
 LIBPATH = -I../include -L../
 

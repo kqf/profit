@@ -21,7 +21,7 @@ public:
     friend std::ostream & operator<<(std::ostream & stream, const ModelParameter & parameter);
 
 
-    string name; 
+    const char * name; 
     double value; 
     double step_size; 
     double lower_bound; 

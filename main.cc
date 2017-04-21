@@ -25,17 +25,19 @@ int main(int argc, char** argv)
 {
 
 	TString path = (argc > 1) ? argv[1] : "/afs/cern.ch/user/o/okovalen/private/bitp/regge-amplitude-analysis/";
-	std::cout << "Your path is: " << path << endl; 
+	std::cout << "Your path is: " << path << endl;
 
 	// TApplication * app = new TApplication("ProFit", &argc, argv);
 	// new data
-	PhysicalProcess input_array[] = {	PhysicalProcess("sigma_pp",    110, "#sigma_{pp}"),
-	                                    PhysicalProcess("sigma_pbarp", 111, "#sigma_{p#bar{p}}"),
-	                                    PhysicalProcess("rho_pp",      210, "#rho_{pp}"),
-	                                    PhysicalProcess("rho_pbarp",   211, "#rho_{p#bar{p}}"),
-	                                    PhysicalProcess("ds_pp",       310, "#frac{d#sigma}{dt}_{pp}"),
-	                                    PhysicalProcess("ds_pbarp",    311, "#frac{d#sigma}{dt}_{p#bar{p}}")
-	                                };
+	PhysicalProcess input_array[] =
+	{
+		PhysicalProcess("sigma_pp",    110, "#sigma_{pp}"),
+		PhysicalProcess("sigma_pbarp", 111, "#sigma_{p#bar{p}}"),
+		PhysicalProcess("rho_pp",      210, "#rho_{pp}"),
+		PhysicalProcess("rho_pbarp",   211, "#rho_{p#bar{p}}"),
+		PhysicalProcess("ds_pp",       310, "#frac{d#sigma}{dt}_{pp}"),
+		PhysicalProcess("ds_pbarp",    311, "#frac{d#sigma}{dt}_{p#bar{p}}")
+	};
 
 	std::vector<PhysicalProcess> input_vector(input_array, input_array + sizeof(input_array) / sizeof(PhysicalProcess));
 
