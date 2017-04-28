@@ -31,7 +31,8 @@ public:
     void GetParameters(const char * filename);
     void DrawApproximation();
     double PerformMinimization(const char * ofile,int nsimplex = 5000, int nmigrad = 1000);
-    double chi2(const double * parameters) ; 
+    double chi2(const double * parameters);
+    double chi2();
 
 private:
     FitManager(); 

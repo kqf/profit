@@ -262,8 +262,7 @@ void FitManager::SetupMinimizer()
 		                   , ierflg);
 }
 
-// TODO:: No default values here
-double FitManager::chi2(const double * parameters = 0)
+double FitManager::chi2(const double * parameters)
 {
 	//static int i = 0;
 	//++i;
@@ -310,10 +309,23 @@ double FitManager::chi2(const double * parameters = 0)
 }
 
 
+double FitManager::chi2()
+{
+	double pars[fit_parameters.size()];
+	for (int i = 0; i < fit_parameters.size(); ++i)
+		pars[i] = fit_parameters[i].value;
+
+	return chi2(pars);
+}
+
+
 double FitManager::PerformMinimization(const char * outputfile, int nsimplex, int nmigrad)
 {
 	if (gMinimizer == 0)
 		SetupMinimizer();
+	
+	if(!nsimplex && !nmigrad)
+		return chi2();
 
 	double arglist[10];
 	int ierflag = 0;
@@ -325,12 +337,6 @@ double FitManager::PerformMinimization(const char * outputfile, int nsimplex, in
 	// arglist[1] = 3.;
 	// gMinimizer->mnexcm("SET PRI", arglist + 1,  1, ierflag);
 
-	if(!nsimplex && !nmigrad)
-	{
-		gMinimizer->mnexcm("SHO FCN", arglist, 2, ierflag);
-		// TOOD: Fix this. What is the proper way of extracting FCN from this?
-		return 137.0;
-	}
 
 
 	ierflag = 0;
@@ -358,5 +364,10 @@ double FitManager::PerformMinimization(const char * outputfile, int nsimplex, in
 		gMinimizer->GetParameter(i, fit_parameters[i].value, arglist[9]);
 		fout << std::setw(14) <<  std::setprecision(12) << fit_parameters[i];
 	}
+
+	// Return the updated version of chi2 value
+	return chi2();
 }
+
+
 

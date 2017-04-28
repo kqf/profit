@@ -20,7 +20,7 @@ struct Analysis
     FitManager & manager;
     double nominal;
 
-    Analysis(): manager(FitManager::GetFitManager()), nominal(137.0)
+    Analysis(): manager(FitManager::GetFitManager()), nominal(4712.3606378067634)
     {
         PhysicalProcess input_array[] =
         {
@@ -53,7 +53,7 @@ BOOST_FIXTURE_TEST_SUITE(AmplitudeChi2Test, Analysis)
 
 BOOST_AUTO_TEST_CASE(Chi2)
 {
-    double diff = nominal - manager.PerformMinimization("devnullparameters.in", 0);
+    double diff = nominal - manager.PerformMinimization("devnullparameters.in", 0, 0);
     BOOST_TEST(diff == 0.0, tt::tolerance(0.00001));
 }
 
