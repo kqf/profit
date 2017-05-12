@@ -63,6 +63,9 @@ private:
     TF1 * fitFunction; 
     double ds_pp_energy;
     double ds_pbp_energy;
+    
+    int pool_size;
+    int procid;
 };
 
 #endif	/* FITMANAGER_H */

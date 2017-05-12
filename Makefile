@@ -2,12 +2,13 @@ source_dirs := src
 include_dirs := include
 search_wildcard := $(addsuffix /*.cc,$(source_dirs))
 root_flags :=`root-config --cflags --libs`
+CC = mpicxx
 
 profit: $(notdir $(patsubst   %.cc,%.o,$(wildcard   $(search_wildcard))))
-	g++ main.cxx $^ -o $@ $(root_flags) -lgsl -lgslcblas -lMinuit -fopenmp $(addprefix -I ,$(include_dirs)) 
+	$(CC) main.cxx $^ -o $@ $(root_flags) -lgsl -lgslcblas -lMinuit -fopenmp $(addprefix -I ,$(include_dirs)) 
 VPATH   := $(source_dirs)
 %.o: %.cc
-	g++ -c -MD $(addprefix -I ,$(include_dirs)) $< $(root_flags) -lMinuit -fopenmp
+	$(CC) -c -MD $(addprefix -I ,$(include_dirs)) $< $(root_flags) -lMinuit -fopenmp
 include $(wildcard   *.d)
 .PHONY: clean
 clean:

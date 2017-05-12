@@ -21,6 +21,8 @@
 #include <functional>
 #include <omp.h>
 
+#include <mpi.h>
+#include <stdlib.h>    // quick_exit
 
 FitManager * FitManager::_instance = 0;
 
@@ -32,6 +34,15 @@ FitManager::FitManager():
 {
 	ds_pbp_energy = 53.018;
 	ds_pp_energy = 44.7;
+
+	MPI_Init(NULL, NULL);
+	// Get the number of processes
+	MPI_Comm_size(MPI_COMM_WORLD, &pool_size);
+
+	// Get the rank of the process
+	MPI_Comm_rank(MPI_COMM_WORLD, &procid);
+
+
 }
 
 FitManager & FitManager::GetFitManager()
@@ -272,18 +283,27 @@ double FitManager::chi2(const double * parameters)
 
 
 	double result = 0;
-	double chi2_per_process = 0;
-	for (int i = 0; i < processes.size() ; ++i )
+	double chi2_per_phys_process = 0;
+	for (int i = 0; i < processes.size() ; ++i)
 	{
 		currentModel.SetProcessType(processes[i].dataCode);
 		// std::cout << "Processing " << processes[i].dataCode << std::endl;
-		chi2_per_process = 0;
+		chi2_per_phys_process = 0;
 		TheoreticalModel computor(currentModel);
 
 		int npoints = processes[i].numberOfpoints;
-		#pragma omp parallel for firstprivate(computor) reduction(+:chi2_per_process)
-		for (int j = 0;  j <  npoints; ++j)
+		// Initialize the MPI environment
+
+		int nchunks = npoints / pool_size;
+		int nreminder = npoints % pool_size;
+		int current_chunk = (procid < nreminder) ? nchunks + 1 : nchunks;
+		int start = (procid >= nreminder) ? (nchunks + 1) * nreminder + (procid - nreminder) * nchunks : current_chunk * procid;
+
+		double local_chi2_per_phys_process = 0;
+		// #pragma omp parallel for firstprivate(computor) reduction(+:chi2_per_phys_process)
+		for (int j = start; j < start + current_chunk; ++j)
 		{
+
 			const DataPoint & p = processes[i].experimentalPoints[j];
 			// if(p.ignore) continue;
 
@@ -293,17 +313,22 @@ double FitManager::chi2(const double * parameters)
 
 
 			// std::cout << std::setw(8) << p.energy << "\t"
-			//              << std::setw(8) << p.t << "\t"
-			//              << std::setw(8) << p.observable << "\t"
-			//              << std::setw(8) << y << "\terror\t"
-			//              << std::setw(8) << p.error << "\t"
-			// << processes[i].dataCode << "\t"
-			// << std::setw(8) << delta * delta << std::endl;
-//
-			chi2_per_process += delta * delta;
+			//           << std::setw(8) << p.t << "\t"
+			//           << std::setw(8) << p.observable << "\t"
+			//           << std::setw(8) << y << "\terror\t"
+			//           << std::setw(8) << p.error << "\t"
+			//           << processes[i].dataCode << "\t"
+			//           << std::setw(8) << delta * delta
+			//           << " procid " << procid
+			//           <<  std::endl;
+
+
+			local_chi2_per_phys_process += delta * delta;
 		}
-		// std::cout << "Chi^2/ndof per process: " << chi2_per_process / processes[i].numberOfpoints << " for "  << processes[i].dataCode << std::endl;
-		result += chi2_per_process;
+		MPI_Reduce(&local_chi2_per_phys_process, &chi2_per_phys_process, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+		if(procid == 0)
+			std::cout << "Chi^2/ndof per process: " << chi2_per_phys_process / processes[i].numberOfpoints << " for "  << processes[i].dataCode << " procid " << procid <<  std::endl;
+		result += chi2_per_phys_process;
 	}
 	return result;
 }
@@ -323,9 +348,15 @@ double FitManager::PerformMinimization(const char * outputfile, int nsimplex, in
 {
 	if (gMinimizer == 0)
 		SetupMinimizer();
-	
-	if(!nsimplex && !nmigrad)
-		return chi2();
+
+	if (!nsimplex && !nmigrad)
+	{
+		double chi2val = chi2();
+		MPI_Finalize();
+		if (procid != 0)
+			quick_exit(0);
+		return chi2val;
+	}
 
 	double arglist[10];
 	int ierflag = 0;
@@ -366,7 +397,13 @@ double FitManager::PerformMinimization(const char * outputfile, int nsimplex, in
 	}
 
 	// Return the updated version of chi2 value
-	return chi2();
+	double chi2val = chi2();
+
+	MPI_Finalize();
+	if (procid != 0)
+		exit(0);
+
+	return chi2val;
 }
 
 
