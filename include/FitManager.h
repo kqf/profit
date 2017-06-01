@@ -26,7 +26,7 @@ public:
 //    FitManager(const FitManager& orig);
 //    virtual ~FitManager();
 
-    static FitManager & GetFitManager(); 
+    static FitManager & GetFitManager(int psize = 1, int pid = 1); 
     void GetData(const char * filename, std::vector<PhysicalProcess> input);
     void GetParameters(const char * filename);
     void DrawApproximation();
@@ -35,7 +35,7 @@ public:
     double chi2();
 
 private:
-    FitManager(); 
+    FitManager(int psize, int pid); 
     FitManager(const FitManager& orig) {}
     FitManager & operator=(const FitManager &) {}
 

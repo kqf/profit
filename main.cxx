@@ -18,11 +18,23 @@
 #include "PhysicalProcess.h"
 
 
+#include <mpi.h>
 using namespace std;
 
 
 int main(int argc, char** argv)
 {
+
+	MPI_Init(NULL, NULL);
+
+	int pool_size, procid;
+
+	// Get the number of processes
+	MPI_Comm_size(MPI_COMM_WORLD, &pool_size);
+
+	// Get the rank of the process
+	MPI_Comm_rank(MPI_COMM_WORLD, &procid);
+
 
 	TString path = (argc > 1) ? argv[1] : "/afs/cern.ch/user/o/okovalen/private/bitp/regge-amplitude-analysis/";
 	std::cout << "Your path is: " << path << endl;
@@ -41,7 +53,7 @@ int main(int argc, char** argv)
 
 	std::vector<PhysicalProcess> input_vector(input_array, input_array + sizeof(input_array) / sizeof(PhysicalProcess));
 
-	FitManager & manager = FitManager::GetFitManager();
+	FitManager & manager = FitManager::GetFitManager(pool_size, procid);
 
 	// These are configurations for bitp cluster
 	// manager.GetData("/home/okovalen/nonlinear-trajectories/Data.root", input_vector);
@@ -60,6 +72,7 @@ int main(int argc, char** argv)
 	std::cout << "It takes " << timer.RealTime() / 60 << " min to calculate chi^2." << std::endl;
 
 
+	MPI_Finalize();
 	// app->Run();
 	return 0;
 }

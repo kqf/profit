@@ -26,28 +26,22 @@
 
 FitManager * FitManager::_instance = 0;
 
-FitManager::FitManager():
+FitManager::FitManager(int psize = 1, int pid = 1):
 	graphs(0),
 	main_canvas(0),
 	gMinimizer(0),
-	fitFunction(0)
+	fitFunction(0),
+	pool_size(psize),
+	procid(pid)
+
 {
 	ds_pbp_energy = 53.018;
 	ds_pp_energy = 44.7;
-
-	MPI_Init(NULL, NULL);
-	// Get the number of processes
-	MPI_Comm_size(MPI_COMM_WORLD, &pool_size);
-
-	// Get the rank of the process
-	MPI_Comm_rank(MPI_COMM_WORLD, &procid);
-
-
 }
 
-FitManager & FitManager::GetFitManager()
+FitManager & FitManager::GetFitManager(int psize, int pid)
 {
-	if (_instance == 0) _instance =  new FitManager();
+	if (_instance == 0) _instance =  new FitManager(psize, pid);
 	return * _instance;
 }
 
@@ -350,13 +344,7 @@ double FitManager::PerformMinimization(const char * outputfile, int nsimplex, in
 		SetupMinimizer();
 
 	if (!nsimplex && !nmigrad)
-	{
-		double chi2val = chi2();
-		MPI_Finalize();
-		if (procid != 0)
-			quick_exit(0);
-		return chi2val;
-	}
+		return chi2();
 
 	double arglist[10];
 	int ierflag = 0;
@@ -398,13 +386,5 @@ double FitManager::PerformMinimization(const char * outputfile, int nsimplex, in
 
 	// Return the updated version of chi2 value
 	double chi2val = chi2();
-
-	MPI_Finalize();
-	if (procid != 0)
-		exit(0);
-
 	return chi2val;
 }
-
-
-

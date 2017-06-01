@@ -8,6 +8,8 @@
 #include "PhysicalProcess.h"
 #include "FitManager.h"
 
+#include <mpi.h>
+
 
 
 namespace tt = boost::test_tools;
@@ -19,9 +21,20 @@ struct Analysis
 {
     FitManager & manager;
     double nominal;
+    int procid;
 
-    Analysis(): manager(FitManager::GetFitManager()), nominal(4712.3606378067634)
+    Analysis(): manager(FitManager::GetFitManager()), nominal(4712.3606378067634), procid(-123)
     {
+        int pool_size;
+
+        MPI_Init(NULL, NULL);
+
+        // Get the number of processes
+        MPI_Comm_size(MPI_COMM_WORLD, &pool_size);
+
+        // Get the rank of the process
+        MPI_Comm_rank(MPI_COMM_WORLD, &procid);
+
         PhysicalProcess input_array[] =
         {
             PhysicalProcess("sigma_pp",    110, "#sigma_{pp}"),
@@ -46,6 +59,7 @@ struct Analysis
     ~Analysis()
     {
         BOOST_TEST_MESSAGE("Teardown the pole");
+        MPI_Finalize();
     }
 };
 
@@ -54,6 +68,11 @@ BOOST_FIXTURE_TEST_SUITE(AmplitudeChi2Test, Analysis)
 BOOST_AUTO_TEST_CASE(Chi2)
 {
     double diff = nominal - manager.PerformMinimization("devnullparameters.in", 0, 0);
+
+    if (procid != 0)
+        return;
+
+
     BOOST_TEST(diff == 0.0, tt::tolerance(0.00001));
 }
 
