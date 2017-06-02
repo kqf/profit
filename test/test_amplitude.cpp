@@ -67,8 +67,11 @@ BOOST_FIXTURE_TEST_SUITE(AmplitudeChi2Test, Analysis)
 
 BOOST_AUTO_TEST_CASE(Chi2)
 {
-    double diff = nominal - manager.PerformMinimization("devnullparameters.in", 0, 0);
+    BOOST_TEST_MESSAGE("CURRENT PROC ID ");
+    BOOST_TEST_MESSAGE(procid);
 
+    
+    double diff = nominal - manager.PerformMinimization("devnullparameters.in", 0, 0);
     if (procid != 0)
         return;
 

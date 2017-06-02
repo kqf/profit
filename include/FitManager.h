@@ -31,11 +31,11 @@ public:
     void GetParameters(const char * filename);
     void DrawApproximation();
     double PerformMinimization(const char * ofile,int nsimplex = 5000, int nmigrad = 1000);
-    double chi2(const double * parameters);
+    virtual double chi2(const double * parameters);
     double chi2();
 
-private:
-    FitManager(int psize, int pid); 
+protected:
+    FitManager(); 
     FitManager(const FitManager& orig) {}
     FitManager & operator=(const FitManager &) {}
 
@@ -63,9 +63,6 @@ private:
     TF1 * fitFunction; 
     double ds_pp_energy;
     double ds_pbp_energy;
-    
-    int pool_size;
-    int procid;
 };
 
 #endif	/* FITMANAGER_H */
