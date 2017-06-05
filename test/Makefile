@@ -1,9 +1,9 @@
-TARGETS = test_pole test_amplitude
+TARGETS = test_pole test_amplitude draw_results
 LIBS = ../*.o
 LIBPATH = -I../include -L../
 CXX = mpicxx
 
-root_flags :=`root-config --cflags --libs` -lgsl -lgslcblas -fopenmp -lMinuit
+root_flags :=`root-config --cflags --libs` -lgsl -lgslcblas -lMinuit -fopenmp
 
 all: $(TARGETS) $(LIBS)
 

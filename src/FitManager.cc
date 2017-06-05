@@ -40,7 +40,7 @@ FitManager::FitManager():
 FitManager & FitManager::GetFitManager(int psize, int pid)
 {
 	if (_instance == 0) 
-		_instance = (psize == 0 && pid == 0) ? new FitManager(): new FitManagerMPI(psize, pid);
+		_instance = (psize == 0) ? new FitManager(): new FitManagerMPI(psize, pid);
 	return * _instance;
 }
 
@@ -303,10 +303,11 @@ double FitManager::chi2(const double * parameters)
 			//              << std::setw(8) << p.error << "\t"
 			// << processes[i].dataCode << "\t"
 			// << std::setw(8) << delta * delta << std::endl;
-//
+			//
+
 			chi2_per_process += delta * delta;
 		}
-		// std::cout << "Chi^2/ndof per process: " << chi2_per_process / processes[i].numberOfpoints << " for "  << processes[i].dataCode << std::endl;
+		std::cout << "Chi^2/ndof per process: " << chi2_per_process / processes[i].numberOfpoints << " for "  << processes[i].dataCode << std::endl;
 		result += chi2_per_process;
 	}
 	return result;
