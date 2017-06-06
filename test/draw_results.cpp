@@ -1,6 +1,13 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE Chi2Test
 
+// -- ROOT headers --
+#include <TApplication.h>
+#include <TCanvas.h>
+#include <TLatex.h>
+#include <TAxis.h>
+
+
 #include <boost/test/unit_test.hpp>
 #include <iostream>
 
@@ -17,82 +24,10 @@ namespace tt = boost::test_tools;
 using std::cout;
 using std::endl;
 
-struct Plotter
+class Plotter
 {
-    FitManager & manager;
-    // void DrawApproximation()
-    // {
-    //     TCanvas * canvas = new TCanvas("Main Canvas", "experimental data", 800, 600);
-    //     canvas->Divide(2, 3);
-    //     for (int i = 0; i < processes.size(); ++i)
-    //         CreateGraph(processes[i]);
-
-
-    //     TLatex energy_label;
-    //     energy_label.SetTextFont(43);
-    //     energy_label.SetTextSize(20);
-    //     for (int i = 0; i < graphs.size(); ++i)
-    //     {
-    //         canvas->cd(i + 1);
-    //         if (processes[i].dataCode < 300)
-    //             gPad->SetLogx();
-
-    //         if (processes[i].dataCode > 300)
-    //             gPad->SetLogy();
-
-    //         graphs[i]->Draw("AP");
-    //         DrawFitFunction(processes[i]);
-
-    //         // if(processes[i].dataCode == 310)
-    //         energy_label.DrawText(0.1, 0.5, TString::Format("#sqrt{s} = %.2g", ds_pp_energy));
-
-    //         // if(processes[i].dataCode == 311)
-    //         // energy_label.DrawText(0.5, 0.5, TString::Format("#sqrt{s} = %.2g", ds_pbp_energy));
-
-    //         graphs[i]->Draw("AP");
-    //         DrawFitFunction(processes[i]);
-    //     }
-    //     canvas->Show();
-    //     canvas->SaveAs(TString::Format("plots_with_pp%.2g_pap_%.2g_.png", ds_pp_energy, ds_pbp_energy));
-    // }
-
-    // void CreateGraph(PhysicalProcess& proc)
-    // {
-    //     TGraphErrors * graph = new TGraphErrors();
-    //     graph->SetName(proc.name);
-    //     graph->SetTitle(proc.title);
-
-    //     //    TODO: Check wheather numberOfpoints is needed
-    //     int npoints = 0;
-    //     for (int i = 0; i < proc.numberOfpoints; ++i)
-    //     {
-    //         DataPoint point = proc.experimentalPoints[i];
-    //         // here draw cuts should be applied
-    //         if (proc.dataCode == 310 && int(point.energy) != int(ds_pp_energy))
-    //             continue;
-
-    //         if (proc.dataCode == 311 && int(point.energy) != int(ds_pbp_energy))
-    //             continue;
-
-    //         double x = (proc.dataCode  < 300) ? point.energy : point.t;
-    //         double y = point.observable;
-    //         double dy = point.error;
-
-    //         graph ->SetPoint(npoints, x, y);
-    //         graph ->SetPointError(npoints, 0, dy);
-    //         ++npoints;
-    //     }
-
-    //     graph->GetXaxis()->SetTitle((proc.dataCode  < 300) ? "#sqrt{s}, GeV" : "|t|, GeV^{2}");
-    //     // TODO: add units to y-title
-    //     graph->GetYaxis()->SetTitle(TString(proc.title));
-    //     graph->SetMarkerStyle(20);
-    //     graph->SetMarkerColor(46);
-
-    //     graphs.push_back(graph);
-    // }
-
-    Plotter(): manager(FitManager::GetFitManager()) 
+public:
+    Plotter(): manager(FitManager::GetFitManager()), app(new TApplication("ProFit", 0, 0)), ds_pbp_energy(53.018), ds_pp_energy(44.7)
     {
         PhysicalProcess input_array[] =
         {
@@ -116,14 +51,104 @@ struct Plotter
 
     ~Plotter()
     {
+        app->Run();
         BOOST_TEST_MESSAGE("Teardown the plotter");
     }
+
+    void DrawResults()
+    {
+        const FitManager::DataSet & data = manager.Data();
+        TCanvas * canvas = new TCanvas("Main Canvas", "experimental data", 800, 600);
+        canvas->Divide(2, 3);
+
+        for (int i = 0; i < data.size(); ++i)
+        {
+            TVirtualPad * pad = canvas->cd(i + 1);
+            pad->cd();
+            DrawGraph(data[i]);
+            DecoratePad(pad, data[i].dataCode);
+        }
+        canvas->Show();
+        canvas->SaveAs(TString::Format("plots_with_pp%.2g_pap_%.2g_.png", ds_pp_energy, ds_pbp_energy));
+    }
+private:
+    FitManager & manager;
+    TApplication * app;
+    Float_t ds_pp_energy;
+    Float_t ds_pbp_energy;
+
+
+    void DecoratePad(TVirtualPad * pad, int code)
+    {
+        pad->cd();
+        pad->SetTickx();
+        pad->SetTicky();
+        pad->SetGridx();
+        pad->SetGridy();
+
+        TLatex energy_label;
+        energy_label.SetTextFont(43);
+        energy_label.SetTextSize(20);
+
+        if (code == 310)
+            energy_label.DrawText(0.1, 0.5, TString::Format("#sqrt{s} = %.2g", ds_pp_energy));
+
+        if (code == 311)
+            energy_label.DrawText(0.5, 0.5, TString::Format("#sqrt{s} = %.2g", ds_pbp_energy));
+
+        if (code < 300)
+            pad->SetLogx();
+
+        if (code > 300)
+            pad->SetLogy();
+    }
+
+
+
+
+    TGraphErrors * DrawGraph(const PhysicalProcess& proc)
+    {
+        TGraphErrors  graph = TGraphErrors();
+        graph.SetName(proc.name);
+        graph.SetTitle(proc.title);
+
+        //    TODO: Check wheather numberOfpoints is needed
+        int npoints = 0;
+        for (int i = 0; i < proc.numberOfpoints; ++i)
+        {
+            DataPoint point = proc.experimentalPoints[i];
+            // here draw cuts should be applied
+            if (proc.dataCode == 310 && int(point.energy) != int(ds_pp_energy))
+                continue;
+
+            if (proc.dataCode == 311 && int(point.energy) != int(ds_pbp_energy))
+                continue;
+
+            double x = (proc.dataCode  < 300) ? point.energy : point.t;
+            double y = point.observable;
+            double dy = point.error;
+
+            graph.SetPoint(npoints, x, y);
+            graph.SetPointError(npoints, 0, dy);
+            ++npoints;
+        }
+
+        graph.GetXaxis()->SetTitle((proc.dataCode  < 300) ? "#sqrt{s}, GeV" : "|t|, GeV^{2}");
+        // TODO: add units to y-title
+        graph.GetYaxis()->SetTitle(TString(proc.title));
+        graph.SetMarkerStyle(20);
+        graph.SetMarkerColor(46);
+        graph.DrawClone("AP");
+    }
+
 };
 
 BOOST_FIXTURE_TEST_SUITE(PlottingTheResults, Plotter)
 
 BOOST_AUTO_TEST_CASE(Plot)
 {
+
+    DrawResults();
     BOOST_TEST_MESSAGE("TODO: Implement plotting here.");
 }
 
