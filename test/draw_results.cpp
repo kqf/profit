@@ -6,6 +6,7 @@
 #include <TCanvas.h>
 #include <TLatex.h>
 #include <TAxis.h>
+#include <TF1.h>
 
 
 #include <boost/test/unit_test.hpp>
@@ -27,8 +28,13 @@ using std::endl;
 class Plotter
 {
 public:
-    Plotter(): manager(FitManager::GetFitManager()), app(new TApplication("ProFit", 0, 0)), ds_pbp_energy(53.018), ds_pp_energy(44.7)
+    Plotter():
+        fManager(FitManager::GetFitManager()),
+        fApp(new TApplication("ProFit", 0, 0)),
+        fEnergy_ds_pbp(53.018),
+        fEnergy_ds_pp(44.7)
     {
+        fFitFunction = TF1("fFitFunction", fManager.GetModel(), &TheoreticalModel::DrawFunction, 20, 3000, fManager.GetModel()->npars + 2);
         PhysicalProcess input_array[] =
         {
             PhysicalProcess("sigma_pp",    110, "#sigma_{pp}"),
@@ -41,23 +47,25 @@ public:
 
         };
         std::vector<PhysicalProcess> input_vector(input_array, input_array + sizeof(input_array) / sizeof(PhysicalProcess));
-        manager.GetData("../Data.root", input_vector);
+        fManager.GetData("../Data.root", input_vector);
 
         // NB: Here use real parameters
-        manager.GetParameters("../parameters.in");
+        fManager.GetParameters("../parameters.in");
+        SetFitParameters();
 
         BOOST_TEST_MESSAGE("Setup the plotter");
     }
 
     ~Plotter()
     {
-        app->Run();
+        fApp->Run();
         BOOST_TEST_MESSAGE("Teardown the plotter");
+        delete fApp;
     }
 
     void DrawResults()
     {
-        const FitManager::DataSet & data = manager.Data();
+        const FitManager::DataSet & data = fManager.Data();
         TCanvas * canvas = new TCanvas("Main Canvas", "experimental data", 800, 600);
         canvas->Divide(2, 3);
 
@@ -69,13 +77,14 @@ public:
             DecoratePad(pad, data[i].dataCode);
         }
         canvas->Show();
-        canvas->SaveAs(TString::Format("plots_with_pp%.2g_pap_%.2g_.png", ds_pp_energy, ds_pbp_energy));
+        canvas->SaveAs(TString::Format("plots_with_pp%.2g_pap_%.2g_.png", fEnergy_ds_pp, fEnergy_ds_pbp));
     }
 private:
-    FitManager & manager;
-    TApplication * app;
-    Float_t ds_pp_energy;
-    Float_t ds_pbp_energy;
+    FitManager & fManager;
+    TApplication * fApp;
+    TF1 fFitFunction;
+    float fEnergy_ds_pp;
+    float fEnergy_ds_pbp;
 
 
     void DecoratePad(TVirtualPad * pad, int code)
@@ -91,10 +100,10 @@ private:
         energy_label.SetTextSize(20);
 
         if (code == 310)
-            energy_label.DrawText(0.1, 0.5, TString::Format("#sqrt{s} = %.2g", ds_pp_energy));
+            energy_label.DrawText(0.1, 0.5, TString::Format("#sqrt{s} = %.2g", fEnergy_ds_pp));
 
         if (code == 311)
-            energy_label.DrawText(0.5, 0.5, TString::Format("#sqrt{s} = %.2g", ds_pbp_energy));
+            energy_label.DrawText(0.5, 0.5, TString::Format("#sqrt{s} = %.2g", fEnergy_ds_pbp));
 
         if (code < 300)
             pad->SetLogx();
@@ -104,24 +113,21 @@ private:
     }
 
 
-
-
     TGraphErrors * DrawGraph(const PhysicalProcess& proc)
     {
         TGraphErrors  graph = TGraphErrors();
         graph.SetName(proc.name);
         graph.SetTitle(proc.title);
 
-        //    TODO: Check wheather numberOfpoints is needed
         int npoints = 0;
         for (int i = 0; i < proc.numberOfpoints; ++i)
         {
             DataPoint point = proc.experimentalPoints[i];
             // here draw cuts should be applied
-            if (proc.dataCode == 310 && int(point.energy) != int(ds_pp_energy))
+            if (proc.dataCode == 310 && int(point.energy) != int(fEnergy_ds_pp))
                 continue;
 
-            if (proc.dataCode == 311 && int(point.energy) != int(ds_pbp_energy))
+            if (proc.dataCode == 311 && int(point.energy) != int(fEnergy_ds_pbp))
                 continue;
 
             double x = (proc.dataCode  < 300) ? point.energy : point.t;
@@ -139,6 +145,37 @@ private:
         graph.SetMarkerStyle(20);
         graph.SetMarkerColor(46);
         graph.DrawClone("AP");
+        DrawFitFunction(proc);
+    }
+
+
+    void DrawFitFunction(const PhysicalProcess& proc)
+    {
+        int shift = 2;
+        if (proc.dataCode / 100 == 3)
+        {
+            fFitFunction.SetRange(0.1 , 10);
+            fFitFunction.SetParameter(0, proc.dataCode % 10 ? fEnergy_ds_pbp : fEnergy_ds_pp);
+        }
+        else
+        {
+            fFitFunction.SetRange(5, 3e+5);
+            fFitFunction.SetParameter(0, 0); // t = 0
+        }
+
+        fFitFunction.SetParameter(1, proc.dataCode);
+        fFitFunction.DrawClone("same");  // these 2 lines needs to be run together!!
+    }
+
+    void SetFitParameters()
+    {
+        float * pars;
+        int npars;
+        fManager.GetParameters(pars, npars);
+
+        for (int i = 0; i < npars; ++i)
+            fFitFunction.SetParameter(i, pars[i]);
+        // delete [] pars;
     }
 
 };

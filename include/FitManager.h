@@ -42,6 +42,21 @@ public:
         return processes;
     }
 
+    // Don't make this const as theoretical model can be modified
+    // TODO: Correct this behavior
+    TheoreticalModel * GetModel()
+    {
+        return &currentModel;
+    }
+
+    void GetParameters(float * pars, int & npars)
+    {
+        npars = fit_parameters.size();
+        pars = new float[npars];
+        for (int i = 0; i < npars; ++i)
+            pars[i] = fit_parameters[i].value;
+    }
+
 protected:
     FitManager();
     FitManager(const FitManager& orig) {}
@@ -60,7 +75,7 @@ protected:
 
     std::vector<ModelParameter>  fit_parameters;
     std::vector<PhysicalProcess> processes;
-#pragma omp private(processes)
+    #pragma omp private(processes)
     std::vector<TGraphErrors *>     graphs;
     TCanvas * main_canvas;
     TMinuit * gMinimizer;
