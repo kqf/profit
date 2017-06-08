@@ -201,11 +201,14 @@ double TheoreticalModel::DrawFunction(double* x, double* par)
     SetProcessType((int)par[1]); 
     bool needst = processType / 100 == 3; 
 
+    // std::cout << processType << std::endl;
+
     double energy = needst ? par[0] : x[0]; 
     double t =  ( !needst )? par[0] : x[0]; 
 
     SetParameters(par + 2); 
 
+    // return 0;
     double result = GetTheoreticalValue(energy, t);  
     return result; 
 }

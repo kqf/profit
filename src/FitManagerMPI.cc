@@ -22,8 +22,6 @@ FitManagerMPI::FitManagerMPI(int psize = 1, int pid = 1):
 	procid(pid)
 
 {
-	ds_pbp_energy = 53.018;
-	ds_pp_energy = 44.7;
 }
 
 double FitManagerMPI::chi2(const double * parameters)

@@ -25,13 +25,12 @@ class FitManager
 
 public:
     typedef std::vector<PhysicalProcess> DataSet;
-//    FitManager(const FitManager& orig);
-//    virtual ~FitManager();
+    virtual ~FitManager() {}
 
     static FitManager & GetFitManager(int psize = 0, int pid = 0);
+    // TODO: Simplify Further this class
     void GetData(const char * filename, std::vector<PhysicalProcess> input);
     void GetParameters(const char * filename);
-    void DrawApproximation();
     double PerformMinimization(const char * ofile, int nsimplex = 5000, int nmigrad = 1000);
     virtual double chi2(const double * parameters);
     double chi2();
@@ -58,35 +57,25 @@ public:
     }
 
 protected:
-    FitManager();
+    FitManager(): gMinimizer(0) {}
     FitManager(const FitManager& orig) {}
     FitManager & operator=(const FitManager &) {}
 
-    void FillProcess(PhysicalProcess & proc);
-    void CreateGraph(PhysicalProcess & proc);
-    void DrawFitFunction(PhysicalProcess & proc);
+    void FillProcess(PhysicalProcess & proc, const char * filename);
     void SetupMinimizer();
     static FitManager * _instance;
     static bool Cut(const DataPoint & p, int procType);
-    // Needed to energy comparison:
     static int ConvertEnergy(const double & en) { return int(1000 * en); }
 
-//    TODO: rearrange data fields.
-
-    std::vector<ModelParameter>  fit_parameters;
     std::vector<PhysicalProcess> processes;
-    #pragma omp private(processes)
-    std::vector<TGraphErrors *>     graphs;
-    TCanvas * main_canvas;
-    TMinuit * gMinimizer;
+    std::vector<ModelParameter>  fit_parameters;
 
-    const char * root_file;
     TheoreticalModel currentModel;
     #pragma omp private(currentModel)
-    TF1 * fitFunction;
-    double ds_pp_energy;
-    double ds_pbp_energy;
-};
 
+    #pragma omp private(processes)
+    TMinuit * gMinimizer;
+
+};
 #endif  /* FITMANAGER_H */
 

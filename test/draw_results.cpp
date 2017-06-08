@@ -1,5 +1,5 @@
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE Chi2Test
+#define BOOST_TEST_MODULE PlotTheResults
 
 // -- ROOT headers --
 #include <TApplication.h>
@@ -34,7 +34,6 @@ public:
         fEnergy_ds_pbp(53.018),
         fEnergy_ds_pp(44.7)
     {
-        fFitFunction = TF1("fFitFunction", fManager.GetModel(), &TheoreticalModel::DrawFunction, 20, 3000, fManager.GetModel()->npars + 2);
         PhysicalProcess input_array[] =
         {
             PhysicalProcess("sigma_pp",    110, "#sigma_{pp}"),
@@ -53,6 +52,9 @@ public:
         fManager.GetParameters("../parameters.in");
         SetFitParameters();
 
+        // Initialize Fit function only after the fManager setup.
+        fFitFunction = TF1("fFitFunction", fManager.GetModel(), &TheoreticalModel::DrawFunction, 20, 3000, fManager.GetModel()->npars + 2);
+        
         BOOST_TEST_MESSAGE("Setup the plotter");
     }
 
@@ -133,7 +135,6 @@ private:
             double x = (proc.dataCode  < 300) ? point.energy : point.t;
             double y = point.observable;
             double dy = point.error;
-
             graph.SetPoint(npoints, x, y);
             graph.SetPointError(npoints, 0, dy);
             ++npoints;

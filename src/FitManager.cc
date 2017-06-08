@@ -26,17 +26,6 @@
 
 FitManager * FitManager::_instance = 0;
 
-FitManager::FitManager():
-	graphs(0),
-	main_canvas(0),
-	gMinimizer(0),
-	fitFunction(0)
-
-{
-	ds_pbp_energy = 53.018;
-	ds_pp_energy = 44.7;
-}
-
 FitManager & FitManager::GetFitManager(int psize, int pid)
 {
 	if (_instance == 0) 
@@ -46,12 +35,12 @@ FitManager & FitManager::GetFitManager(int psize, int pid)
 
 void FitManager::GetData(const char * filename, std::vector<PhysicalProcess> input)
 {
+	// Copy vectors
 	processes = input;
-	root_file = filename;
 
 	// foreach does not plays well with meber function parameters as refs.
 	for (int i = 0; i < processes.size(); ++i)
-		FillProcess(processes[i]);
+		FillProcess(processes[i], filename);
 }
 
 bool FitManager::Cut(const DataPoint& p, int procType)
@@ -86,7 +75,7 @@ bool FitManager::Cut(const DataPoint& p, int procType)
 	return !is_valid;
 }
 
-void FitManager::FillProcess(PhysicalProcess & proc)
+void FitManager::FillProcess(PhysicalProcess & proc, const char * filename)
 {
 	// TODO: rewrite this
 	// this should be a static method of PhysicalProcess
@@ -94,7 +83,7 @@ void FitManager::FillProcess(PhysicalProcess & proc)
 	// std::vector<PhysicalProcess> PhysicalProcess::CreateProcessesFromFile("Data.root")
 
 	TChain * dat = new TChain(proc.name);
-	dat->Add(root_file);
+	dat->Add(filename);
 	float a, b , c, d;
 
 	dat ->SetBranchAddress("intensity", &a);
@@ -132,106 +121,6 @@ void FitManager::GetParameters(const char * filename)
 
 	currentModel = TheoreticalModel(values, inp_length);
 
-	fitFunction = new TF1("fitFunction", &currentModel, &TheoreticalModel::DrawFunction, 2, 30000, currentModel.npars + 2);
-	fitFunction->SetLineColor(37);
-}
-
-void FitManager::DrawApproximation()
-{
-	if (!main_canvas)
-		main_canvas = new TCanvas("Main Canvas", "experimental data", 800, 600);
-	main_canvas->Divide(2, 3);
-	for (int i = 0; i < processes.size(); ++i)
-		CreateGraph(processes[i]);
-
-
-	TLatex energy_label;
-	energy_label.SetTextFont(43);
-	energy_label.SetTextSize(20);
-	for (int i = 0; i < graphs.size(); ++i)
-	{
-		main_canvas->cd(i + 1);
-		if (processes[i].dataCode < 300)
-			gPad->SetLogx();
-
-		if (processes[i].dataCode > 300)
-			gPad->SetLogy();
-
-		graphs[i]->Draw("AP");
-		DrawFitFunction(processes[i]);
-
-		// if(processes[i].dataCode == 310)
-		energy_label.DrawText(0.1, 0.5, TString::Format("#sqrt{s} = %.2g", ds_pp_energy));
-
-		// if(processes[i].dataCode == 311)
-		// energy_label.DrawText(0.5, 0.5, TString::Format("#sqrt{s} = %.2g", ds_pbp_energy));
-
-		graphs[i]->Draw("AP");
-		DrawFitFunction(processes[i]);
-	}
-	main_canvas->Show();
-	main_canvas->SaveAs(TString::Format("plots_with_pp%.2g_pap_%.2g_.png", ds_pp_energy, ds_pbp_energy));
-}
-
-void FitManager::CreateGraph(PhysicalProcess& proc)
-{
-	TGraphErrors * graph = new TGraphErrors();
-	graph->SetName(proc.name);
-	graph->SetTitle(proc.title);
-
-	//    TODO: Check wheather numberOfpoints is needed
-	int npoints = 0;
-	for (int i = 0; i < proc.numberOfpoints; ++i)
-	{
-		DataPoint point = proc.experimentalPoints[i];
-		// here draw cuts should be applied
-		if (proc.dataCode == 310 && int(point.energy) != int(ds_pp_energy))
-			continue;
-
-		if (proc.dataCode == 311 && int(point.energy) != int(ds_pbp_energy))
-			continue;
-
-		double x = (proc.dataCode  < 300) ? point.energy : point.t;
-		double y = point.observable;
-		double dy = point.error;
-
-		graph ->SetPoint(npoints, x, y);
-		graph ->SetPointError(npoints, 0, dy);
-		++npoints;
-	}
-
-	graph->GetXaxis()->SetTitle((proc.dataCode  < 300) ? "#sqrt{s}, GeV" : "|t|, GeV^{2}");
-	// TODO: add units to y-title
-	graph->GetYaxis()->SetTitle(TString(proc.title));
-	graph->SetMarkerStyle(20);
-	graph->SetMarkerColor(46);
-
-	graphs.push_back(graph);
-}
-
-void FitManager::DrawFitFunction(PhysicalProcess& proc)
-{
-	assert(fitFunction != 0);
-
-	int shift = 2;
-	if (proc.dataCode / 100 == 3)
-	{
-		fitFunction->SetRange(0.1 , 10);
-		fitFunction->SetParameter(0, proc.dataCode % 10 ? ds_pbp_energy : ds_pp_energy);
-	}
-	else
-	{
-		fitFunction->SetRange(5, 3e+5);
-		fitFunction->SetParameter(0, 0);  // t = 0
-	}
-
-	fitFunction->SetParameter(1, proc.dataCode);
-
-	for (int i = 0; i < fit_parameters.size(); ++i)
-		fitFunction->FixParameter(i + shift, fit_parameters[i].value);
-
-	fitFunction->Draw("same");  // these 2 linesk needs to be run together!!
-	main_canvas->Update();
 }
 
 static void fcn(int& npar, double* gradients, double& f, double* p, int flag)
@@ -239,7 +128,6 @@ static void fcn(int& npar, double* gradients, double& f, double* p, int flag)
 	FitManager & manager = FitManager::GetFitManager();
 	f = manager.chi2(p);
 }
-
 
 void FitManager::SetupMinimizer()
 {

@@ -9,7 +9,6 @@
 #include <iostream>
 
 #include <TString.h>
-#include <TApplication.h>
 #include <TStopwatch.h>
 
 
@@ -40,7 +39,6 @@ int main(int argc, char** argv)
 	TString path = (argc > 1) ? argv[1] : "/afs/cern.ch/user/o/okovalen/private/bitp/regge-amplitude-analysis/";
 	std::cout << "Your path is: " << path << endl;
 
-	// TApplication * app = new TApplication("ProFit", &argc, argv);
 	// new data
 	PhysicalProcess input_array[] =
 	{
@@ -63,7 +61,6 @@ int main(int argc, char** argv)
 	// These are configurations for lxplus cluster
 	manager.GetData(path + "Data.root", input_vector);
 	manager.GetParameters(path + "parameters.in");
-	// manager.DrawApproximation();
 
 
 	TStopwatch timer;
@@ -72,9 +69,7 @@ int main(int argc, char** argv)
 	timer.Stop();
 	std::cout << "It takes " << timer.RealTime() / 60 << " min to calculate chi^2." << std::endl;
 
-
 	// MPI_Finalize();
-	// app->Run();
 	return 0;
 }
 
