@@ -24,102 +24,38 @@
 
 #include <stdlib.h>    // quick_exit
 
-FitManager * FitManager::_instance = 0;
+FitManager * FitManager::_fInstance = 0;
 
 FitManager & FitManager::GetFitManager(int psize, int pid)
 {
-	if (_instance == 0) 
-		_instance = (psize == 0) ? new FitManager(): new FitManagerMPI(psize, pid);
-	return * _instance;
+	if (_fInstance == 0)
+		_fInstance = (psize == 0) ? new FitManager() : new FitManagerMPI(psize, pid);
+	return * _fInstance;
 }
 
 void FitManager::GetData(const char * filename, std::vector<PhysicalProcess> input)
 {
 	// Copy vectors
-	processes = input;
+	fProcesses = input;
 
 	// foreach does not plays well with meber function parameters as refs.
-	for (int i = 0; i < processes.size(); ++i)
-		FillProcess(processes[i], filename);
-}
-
-bool FitManager::Cut(const DataPoint& p, int procType)
-{
-	double lower_t = 0.01;
-	double upper_t = 9;
-	double lower_energy = 19;
-	double upper_energy = 2000;
-
-	double lower_energy_sigma = 5;
-	double upper_energy_sigma = 2000;
-
-	int exclude_energy = ConvertEnergy(52.818);
-
-	double aexclude = 52.79;
-	double bexclude = 52.85;
-
-	bool is_valid = false;
-	if (procType > 300)
-		is_valid  = ( (p.energy > lower_energy) && (p.energy < upper_energy) ) &&
-		            ( (p.t > lower_t) && (p.t < upper_t));
-	else
-		is_valid =  ( (p.energy > lower_energy_sigma) && (p.energy < upper_energy_sigma) ) ;
-
-	//    if (ConvertEnergy(p.energy) == exclude_energy)
-	//	return false;
-
-	if ( ( (p.energy > aexclude) && (p.energy < bexclude) ) && procType == 310 )
-		return true;
-
-	// true include data point, false exclude
-	return !is_valid;
-}
-
-void FitManager::FillProcess(PhysicalProcess & proc, const char * filename)
-{
-	// TODO: rewrite this
-	// this should be a static method of PhysicalProcess
-	// something like:
-	// std::vector<PhysicalProcess> PhysicalProcess::CreateProcessesFromFile("Data.root")
-
-	TChain * dat = new TChain(proc.name);
-	dat->Add(filename);
-	float a, b , c, d;
-
-	dat ->SetBranchAddress("intensity", &a);
-	dat ->SetBranchAddress("error", &b);
-	dat ->SetBranchAddress("energy", &c);
-	dat ->SetBranchAddress("t", &d);
-	for (int i = 0 ; i < dat->GetEntries(); ++i )
-	{
-		dat->GetEntry(i);
-		proc.experimentalPoints.push_back(DataPoint((double)a, (double)b, (double)c, (double)d));
-
-		DataPoint & point = proc.experimentalPoints[i];
-		if ( Cut(point, proc.dataCode) )
-			point.ignore = true;
-	}
-	proc.numberOfpoints = proc.experimentalPoints.size();
-
-	std::cout << "Number of points for " << proc.name << " : " <<  proc.experimentalPoints.size() << std::endl;
-
-	delete dat;
-	dat = 0;
+	for (int i = 0; i < fProcesses.size(); ++i)
+		fProcesses[i].FillFromFile(filename);
 }
 
 void FitManager::GetParameters(const char * filename)
 {
-	fit_parameters = ModelParameter::GetParameters(filename);
+	fFitParameters = ModelParameter::GetParameters(filename);
 
-	std::copy(fit_parameters.begin(), fit_parameters.end(), std::ostream_iterator<ModelParameter>(std::cout, ""));
+	std::copy(fFitParameters.begin(), fFitParameters.end(), std::ostream_iterator<ModelParameter>(std::cout, ""));
 
-	const int inp_length = fit_parameters.size();
+	const int inp_length = fFitParameters.size();
 	double values[inp_length];
 
-	for (int i = 0; i < fit_parameters.size(); ++i)
-		values[i] = fit_parameters[i].value;
+	for (int i = 0; i < fFitParameters.size(); ++i)
+		values[i] = fFitParameters[i].value;
 
-	currentModel = TheoreticalModel(values, inp_length);
+	fModel = TheoreticalModel(values, inp_length);
 
 }
 
@@ -131,7 +67,7 @@ static void fcn(int& npar, double* gradients, double& f, double* p, int flag)
 
 void FitManager::SetupMinimizer()
 {
-	int npars = fit_parameters.size();
+	int npars = fFitParameters.size();
 
 	// assert(npars != 0 && "Cannot initialize minimizer with 0 input parameters");
 	gMinimizer = new TMinuit(npars);
@@ -144,13 +80,13 @@ void FitManager::SetupMinimizer()
 	arglist[0] = 1;
 	gMinimizer->mnexcm("SET ERR", arglist, 1, ierflg);
 
-	for (int i = 0; i < fit_parameters.size(); ++i)
+	for (int i = 0; i < fFitParameters.size(); ++i)
 		gMinimizer->mnparm(i
-		                   , fit_parameters[i].name
-		                   , fit_parameters[i].value
-		                   , fit_parameters[i].step_size
-		                   , fit_parameters[i].lower_bound
-		                   , fit_parameters[i].upper_bound
+		                   , fFitParameters[i].name
+		                   , fFitParameters[i].value
+		                   , fFitParameters[i].step_size
+		                   , fFitParameters[i].lower_bound
+		                   , fFitParameters[i].upper_bound
 		                   , ierflg);
 }
 
@@ -160,23 +96,24 @@ double FitManager::chi2(const double * parameters)
 	//++i;
 	//std::cout << "Calling fcn for "  << i << " times" << std::endl;
 	if (parameters != 0)
-		currentModel.SetParameters(parameters);
+		fModel.SetParameters(parameters);
 
 
 	double result = 0;
 	double chi2_per_process = 0;
-	for (int i = 0; i < processes.size() ; ++i )
+	for (int i = 0; i < fProcesses.size() ; ++i )
 	{
-		currentModel.SetProcessType(processes[i].dataCode);
-		// std::cout << "Processing " << processes[i].dataCode << std::endl;
+		fModel.SetProcessType(fProcesses[i].dataCode);
+		// std::cout << "Processing " << fProcesses[i].dataCode << std::endl;
 		chi2_per_process = 0;
-		TheoreticalModel computor(currentModel);
+		TheoreticalModel computor(fModel);
 
-		int npoints = processes[i].numberOfpoints;
+		int npoints = fProcesses[i].numberOfpoints;
 		#pragma omp parallel for firstprivate(computor) reduction(+:chi2_per_process)
 		for (int j = 0;  j <  npoints; ++j)
 		{
-			const DataPoint & p = processes[i].experimentalPoints[j];
+			const DataPoint & p = fProcesses[i].experimentalPoints[j];
+			// TODO: Check the dataset. Should we ignore these values indeed.
 			// if(p.ignore) continue;
 
 			// std::cout << " Calculating >> " << std::endl;
@@ -189,24 +126,24 @@ double FitManager::chi2(const double * parameters)
 			//              << std::setw(8) << p.observable << "\t"
 			//              << std::setw(8) << y << "\terror\t"
 			//              << std::setw(8) << p.error << "\t"
-			// << processes[i].dataCode << "\t"
+			// << fProcesses[i].dataCode << "\t"
 			// << std::setw(8) << delta * delta << std::endl;
 			//
 
 			chi2_per_process += delta * delta;
 		}
-		std::cout << "Chi^2/ndof per process: " << chi2_per_process / processes[i].numberOfpoints << " for "  << processes[i].dataCode << std::endl;
+		std::cout << "Chi^2/ndof per process: " << chi2_per_process / fProcesses[i].numberOfpoints << " for "  << fProcesses[i].dataCode << std::endl;
 		result += chi2_per_process;
 	}
 	return result;
 }
 
 
-double FitManager::chi2()
+double FitManager::GetChi2()
 {
-	double pars[fit_parameters.size()];
-	for (int i = 0; i < fit_parameters.size(); ++i)
-		pars[i] = fit_parameters[i].value;
+	double pars[fFitParameters.size()];
+	for (int i = 0; i < fFitParameters.size(); ++i)
+		pars[i] = fFitParameters[i].value;
 
 	return chi2(pars);
 }
@@ -219,7 +156,7 @@ double FitManager::PerformMinimization(const char * outputfile, int nsimplex, in
 
 
 	if (!nsimplex && !nmigrad)
-		return chi2();
+		return GetChi2();
 
 	double arglist[10];
 	int ierflag = 0;
@@ -251,14 +188,14 @@ double FitManager::PerformMinimization(const char * outputfile, int nsimplex, in
 	std::fstream fout(outputfile);
 
 	// std::fstream fout("parameters.in");
-	for (int i = 0; i < fit_parameters.size(); ++i)
+	for (int i = 0; i < fFitParameters.size(); ++i)
 	{
-		fit_parameters[i].value	 = 0;
-		gMinimizer->GetParameter(i, fit_parameters[i].value, arglist[9]);
-		fout << std::setw(14) <<  std::setprecision(12) << fit_parameters[i];
+		fFitParameters[i].value	 = 0;
+		gMinimizer->GetParameter(i, fFitParameters[i].value, arglist[9]);
+		fout << std::setw(14) <<  std::setprecision(12) << fFitParameters[i];
 	}
 
 	// Return the updated version of chi2 value
-	double chi2val = chi2();
+	double chi2val = GetChi2();
 	return chi2val;
 }

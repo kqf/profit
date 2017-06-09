@@ -30,19 +30,19 @@ double FitManagerMPI::chi2(const double * parameters)
 	//++i;
 	//std::cout << "Calling fcn for "  << i << " times" << std::endl;
 	if (parameters != 0)
-		currentModel.SetParameters(parameters);
+		fModel.SetParameters(parameters);
 
 
 	double result = 0;
 	double chi2_per_phys_process = 0;
-	for (int i = 0; i < processes.size() ; ++i)
+	for (int i = 0; i < fProcesses.size() ; ++i)
 	{
-		currentModel.SetProcessType(processes[i].dataCode);
-		// std::cout << "Processing " << processes[i].dataCode << std::endl;
+		fModel.SetProcessType(fProcesses[i].dataCode);
+		// std::cout << "Processing " << fProcesses[i].dataCode << std::endl;
 		chi2_per_phys_process = 0;
-		TheoreticalModel computor(currentModel);
+		TheoreticalModel computor(fModel);
 
-		int npoints = processes[i].numberOfpoints;
+		int npoints = fProcesses[i].numberOfpoints;
 		// Initialize the MPI environment
 
 		int nchunks = npoints / pool_size;
@@ -55,7 +55,7 @@ double FitManagerMPI::chi2(const double * parameters)
 		for (int j = start; j < start + current_chunk; ++j)
 		{
 
-			const DataPoint & p = processes[i].experimentalPoints[j];
+			const DataPoint & p = fProcesses[i].experimentalPoints[j];
 			// if(p.ignore) continue;
 
 			// std::cout << " Calculating >> " << std::endl;
@@ -68,7 +68,7 @@ double FitManagerMPI::chi2(const double * parameters)
 			//           << std::setw(8) << p.observable << "\t"
 			//           << std::setw(8) << y << "\terror\t"
 			//           << std::setw(8) << p.error << "\t"
-			//           << processes[i].dataCode << "\t"
+			//           << fProcesses[i].dataCode << "\t"
 			//           << std::setw(8) << delta * delta
 			//           << " procid " << procid
 			//           <<  std::endl;
@@ -78,7 +78,7 @@ double FitManagerMPI::chi2(const double * parameters)
 		}
 		MPI_Reduce(&local_chi2_per_phys_process, &chi2_per_phys_process, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 		if(procid == 0)
-			std::cout << "Chi^2/ndof per process: " << chi2_per_phys_process / processes[i].numberOfpoints << " for "  << processes[i].dataCode << " procid " << procid <<  std::endl;
+			std::cout << "Chi^2/ndof per process: " << chi2_per_phys_process / fProcesses[i].numberOfpoints << " for "  << fProcesses[i].dataCode << " procid " << procid <<  std::endl;
 
 		result += chi2_per_phys_process;
 	}

@@ -53,7 +53,7 @@ public:
         SetFitParameters();
 
         // Initialize Fit function only after the fManager setup.
-        fFitFunction = TF1("fFitFunction", fManager.GetModel(), &TheoreticalModel::DrawFunction, 20, 3000, fManager.GetModel()->npars + 2);
+        fFitFunction = TF1("fFitFunction", fManager.Model(), &TheoreticalModel::DrawFunction, 20, 3000, fManager.Model()->npars + 2);
         
         BOOST_TEST_MESSAGE("Setup the plotter");
     }
@@ -172,7 +172,7 @@ private:
     {
         float * pars;
         int npars;
-        fManager.GetParameters(pars, npars);
+        fManager.Parameters(pars, npars);
 
         for (int i = 0; i < npars; ++i)
             fFitFunction.SetParameter(i, pars[i]);

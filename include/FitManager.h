@@ -15,8 +15,6 @@
 #include <vector>
 #include <cassert>
 
-#include <TGraphErrors.h>
-#include <TCanvas.h>
 #include <TMinuit.h>
 
 
@@ -26,34 +24,34 @@ class FitManager
 public:
     typedef std::vector<PhysicalProcess> DataSet;
     virtual ~FitManager() {}
-
     static FitManager & GetFitManager(int psize = 0, int pid = 0);
-    // TODO: Simplify Further this class
+
     void GetData(const char * filename, std::vector<PhysicalProcess> input);
     void GetParameters(const char * filename);
+
     double PerformMinimization(const char * ofile, int nsimplex = 5000, int nmigrad = 1000);
     virtual double chi2(const double * parameters);
-    double chi2();
+    double GetChi2();
 
 
     const DataSet & Data() const
     {
-        return processes;
+        return fProcesses;
     }
 
     // Don't make this const as theoretical model can be modified
     // TODO: Correct this behavior
-    TheoreticalModel * GetModel()
+    TheoreticalModel * Model()
     {
-        return &currentModel;
+        return &fModel;
     }
 
-    void GetParameters(float * pars, int & npars)
+    void Parameters(float * pars, int & npars) const
     {
-        npars = fit_parameters.size();
+        npars = fFitParameters.size();
         pars = new float[npars];
         for (int i = 0; i < npars; ++i)
-            pars[i] = fit_parameters[i].value;
+            pars[i] = fFitParameters[i].value;
     }
 
 protected:
@@ -61,19 +59,16 @@ protected:
     FitManager(const FitManager& orig) {}
     FitManager & operator=(const FitManager &) {}
 
-    void FillProcess(PhysicalProcess & proc, const char * filename);
     void SetupMinimizer();
-    static FitManager * _instance;
-    static bool Cut(const DataPoint & p, int procType);
-    static int ConvertEnergy(const double & en) { return int(1000 * en); }
+    static FitManager * _fInstance;
 
-    std::vector<PhysicalProcess> processes;
-    std::vector<ModelParameter>  fit_parameters;
+    std::vector<PhysicalProcess> fProcesses;
+    std::vector<ModelParameter>  fFitParameters;
 
-    TheoreticalModel currentModel;
-    #pragma omp private(currentModel)
+    TheoreticalModel fModel;
+    #pragma omp private(fModel)
 
-    #pragma omp private(processes)
+    #pragma omp private(fProcesses)
     TMinuit * gMinimizer;
 
 };
