@@ -1,4 +1,4 @@
-TARGETS = test_pole test_amplitude draw_results
+TARGETS = test_pole test_amplitude draw_results test_amplitude_mpi
 LIBS = ../*.o
 LIBPATH = -I../include -L../
 CXX = mpicxx

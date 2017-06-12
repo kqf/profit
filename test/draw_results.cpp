@@ -3,6 +3,7 @@
 
 // -- ROOT headers --
 #include <TApplication.h>
+#include <TGraphErrors.h>
 #include <TCanvas.h>
 #include <TLatex.h>
 #include <TAxis.h>

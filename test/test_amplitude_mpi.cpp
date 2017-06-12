@@ -10,8 +10,6 @@
 
 #include <mpi.h>
 
-
-
 namespace tt = boost::test_tools;
 
 using std::cout;
@@ -19,11 +17,11 @@ using std::endl;
 
 struct Analysis
 {
-    FitManager * manager;
-    double nominal;
-    int procid;
+    FitManager * tManager;
+    double tNominal;
+    int tProcId;
 
-    Analysis(): manager(), nominal(4712.3606378067634), procid(-123)
+    Analysis(): tManager(0), tNominal(4712.3606378067634), tProcId(-123)
     {
         int pool_size;
 
@@ -33,9 +31,9 @@ struct Analysis
         MPI_Comm_size(MPI_COMM_WORLD, &pool_size);
 
         // Get the rank of the process
-        MPI_Comm_rank(MPI_COMM_WORLD, &procid);
+        MPI_Comm_rank(MPI_COMM_WORLD, &tProcId);
 
-        manager = &FitManager::GetFitManager();
+        tManager = &FitManager::GetFitManager(pool_size, tProcId);
 
         PhysicalProcess input_array[] =
         {
@@ -49,11 +47,11 @@ struct Analysis
 
         };
         std::vector<PhysicalProcess> input_vector(input_array, input_array + sizeof(input_array) / sizeof(PhysicalProcess));
-        manager->GetData("../Data.root", input_vector);
+        tManager->GetData("../Data.root", input_vector);
 
         // NB: Use local copy of parameters in this directory
         //     global config might (it sohould) change
-        manager->GetParameters("parameters.in");
+        tManager->GetParameters("parameters.in");
 
         BOOST_TEST_MESSAGE("Setup a test pole");
     }
@@ -70,11 +68,11 @@ BOOST_FIXTURE_TEST_SUITE(AmplitudeChi2TestMPI, Analysis)
 BOOST_AUTO_TEST_CASE(Chi2MPI)
 {
     BOOST_TEST_MESSAGE("CURRENT PROC ID ");
-    BOOST_TEST_MESSAGE(procid);
+    BOOST_TEST_MESSAGE(tProcId);
 
     
-    double diff = nominal - manager->PerformMinimization("devnullparameters.in", 0, 0);
-    if (procid != 0)
+    double diff = tNominal - tManager->PerformMinimization("devnullparameters.in", 0, 0);
+    if (tProcId != 0)
         return;
 
     BOOST_TEST(diff == 0.0, tt::tolerance(0.00001));
