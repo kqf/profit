@@ -30,7 +30,7 @@ public:
     void GetParameters(const char * filename);
 
     double PerformMinimization(const char * ofile, int nsimplex = 5000, int nmigrad = 1000);
-    virtual double chi2(const double * parameters);
+    virtual double chi2(double * parameters);
     double GetChi2();
 
 

@@ -10,7 +10,7 @@ class FitManagerMPI : public FitManager
 {
 
 public:
-    double chi2(const double * parameters);
+    double chi2(double * parameters);
     FitManagerMPI(int psize, int pid); 
 
 protected:

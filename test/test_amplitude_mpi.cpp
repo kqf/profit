@@ -71,7 +71,14 @@ BOOST_AUTO_TEST_CASE(Chi2MPI)
     BOOST_TEST_MESSAGE(tProcId);
 
     
+    double total_mpi_time = 0;
+
+    total_mpi_time -= MPI_Wtime();
     double diff = tNominal - tManager->PerformMinimization("devnullparameters.in", 0, 0);
+    total_mpi_time += MPI_Wtime();
+
+    cout << "Code worked for " << total_mpi_time << endl;
+
     if (tProcId != 0)
         return;
 

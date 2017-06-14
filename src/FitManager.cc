@@ -90,7 +90,7 @@ void FitManager::SetupMinimizer()
 		                   , ierflg);
 }
 
-double FitManager::chi2(const double * parameters)
+double FitManager::chi2(double * parameters)
 {
 	//static int i = 0;
 	//++i;

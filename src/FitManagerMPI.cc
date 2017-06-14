@@ -24,13 +24,21 @@ FitManagerMPI::FitManagerMPI(int psize = 1, int pid = 1):
 {
 }
 
-double FitManagerMPI::chi2(const double * parameters)
+double FitManagerMPI::chi2( double * parameters)
 {
 	//static int i = 0;
 	//++i;
 	//std::cout << "Calling fcn for "  << i << " times" << std::endl;
+
 	if (parameters != 0)
+	{
+
+		MPI_Barrier(MPI_COMM_WORLD);
+		MPI_Bcast(parameters, fModel.npars, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+		MPI_Barrier(MPI_COMM_WORLD);
+
 		fModel.SetParameters(parameters);
+	}
 
 
 	double result = 0;
@@ -77,7 +85,7 @@ double FitManagerMPI::chi2(const double * parameters)
 			local_chi2_per_phys_process += delta * delta;
 		}
 		MPI_Reduce(&local_chi2_per_phys_process, &chi2_per_phys_process, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
-		if(procid == 0)
+		if (procid == 0)
 			std::cout << "Chi^2/ndof per process: " << chi2_per_phys_process / fProcesses[i].numberOfpoints << " for "  << fProcesses[i].dataCode << " procid " << procid <<  std::endl;
 
 		result += chi2_per_phys_process;
