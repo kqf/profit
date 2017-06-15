@@ -1,25 +1,16 @@
 #include "FitManagerMPI.h"
 
-#include <TChain.h>
-#include <TF1.h>
-#include <TAxis.h>
-#include <TString.h>
-#include <TLatex.h>
-
-
-#include <cassert>
 #include <iostream>
 #include <iomanip>
-#include <algorithm>
-#include <functional>
-#include <omp.h>
 
+#include <omp.h>
 #include <mpi.h>
 
-FitManagerMPI::FitManagerMPI(int psize = 1, int pid = 1):
+FitManagerMPI::FitManagerMPI(int psize = 1, int pid = 1, bool test = false):
 	FitManager(),
-	pool_size(psize),
-	procid(pid)
+	fPoolSize(psize),
+	fProcID(pid),
+	fTest(test)
 
 {
 }
@@ -53,10 +44,10 @@ double FitManagerMPI::chi2( double * parameters)
 		int npoints = fProcesses[i].numberOfpoints;
 		// Initialize the MPI environment
 
-		int nchunks = npoints / pool_size;
-		int nreminder = npoints % pool_size;
-		int current_chunk = (procid < nreminder) ? nchunks + 1 : nchunks;
-		int start = (procid >= nreminder) ? (nchunks + 1) * nreminder + (procid - nreminder) * nchunks : current_chunk * procid;
+		int nchunks = npoints / fPoolSize;
+		int nreminder = npoints % fPoolSize;
+		int current_chunk = (fProcID < nreminder) ? nchunks + 1 : nchunks;
+		int start = (fProcID >= nreminder) ? (nchunks + 1) * nreminder + (fProcID - nreminder) * nchunks : current_chunk * fProcID;
 
 		double local_chi2_per_phys_process = 0;
 		// #pragma omp parallel for firstprivate(computor) reduction(+:chi2_per_phys_process)
@@ -67,8 +58,7 @@ double FitManagerMPI::chi2( double * parameters)
 			// if(p.ignore) continue;
 
 			// std::cout << " Calculating >> " << std::endl;
-			double y =  computor.GetTheoreticalValue(p.energy, p.t);
-			double delta =  (p.observable - y) / p.error ;
+			double delta = ValueInPoint(p);
 
 
 			// std::cout << std::setw(8) << p.energy << "\t"
@@ -78,17 +68,33 @@ double FitManagerMPI::chi2( double * parameters)
 			//           << std::setw(8) << p.error << "\t"
 			//           << fProcesses[i].dataCode << "\t"
 			//           << std::setw(8) << delta * delta
-			//           << " procid " << procid
+			//           << " fProcID " <<fProcID 
 			//           <<  std::endl;
 
 
 			local_chi2_per_phys_process += delta * delta;
 		}
-		MPI_Reduce(&local_chi2_per_phys_process, &chi2_per_phys_process, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
-		if (procid == 0)
-			std::cout << "Chi^2/ndof per process: " << chi2_per_phys_process / fProcesses[i].numberOfpoints << " for "  << fProcesses[i].dataCode << " procid " << procid <<  std::endl;
+		MPI_Allreduce(&local_chi2_per_phys_process, &chi2_per_phys_process, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+
+		// if (fProcID == 0)
+			// std::cout << "Chi^2/ndof per process: " << chi2_per_phys_process / fProcesses[i].numberOfpoints << " for "  << fProcesses[i].dataCode << " fProcID " << fProcID <<  std::endl;
+
+		if(fTest)
+			chi2_per_phys_process /= fProcesses[i].numberOfpoints;
 
 		result += chi2_per_phys_process;
 	}
+
+	MPI_Barrier(MPI_COMM_WORLD);
 	return result;
+}
+
+double FitManagerMPI::ValueInPoint(const DataPoint & p)
+{
+	if (fTest)
+		return 1.;
+
+	double y =  fModel.GetTheoreticalValue(p.energy, p.t);
+	double delta =  (p.observable - y) / p.error ;
+	return delta;
 }

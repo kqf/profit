@@ -24,7 +24,7 @@ class FitManager
 public:
     typedef std::vector<PhysicalProcess> DataSet;
     virtual ~FitManager() {}
-    static FitManager & GetFitManager(int psize = 0, int pid = 0);
+    static FitManager & GetFitManager(int psize = 0, int pid = 0, bool test = false);
 
     void GetData(const char * filename, std::vector<PhysicalProcess> input);
     void GetParameters(const char * filename);

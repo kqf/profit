@@ -11,15 +11,17 @@ class FitManagerMPI : public FitManager
 
 public:
     double chi2(double * parameters);
-    FitManagerMPI(int psize, int pid); 
+    FitManagerMPI(int psize, int pid, bool test); 
 
 protected:
+    double ValueInPoint(const DataPoint & p);
     FitManagerMPI(const FitManagerMPI& orig) {}
     FitManagerMPI & operator=(const FitManagerMPI &) {}
 
 private:
-    int pool_size;
-    int procid;
+    int fPoolSize;
+    int fProcID;
+    bool fTest;
 };
 
 #endif	/* FITMANAGERMPI_H */

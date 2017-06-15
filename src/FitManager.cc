@@ -26,10 +26,10 @@
 
 FitManager * FitManager::_fInstance = 0;
 
-FitManager & FitManager::GetFitManager(int psize, int pid)
+FitManager & FitManager::GetFitManager(int psize, int pid, bool test)
 {
 	if (_fInstance == 0)
-		_fInstance = (psize == 0) ? new FitManager() : new FitManagerMPI(psize, pid);
+		_fInstance = (psize == 0) ? new FitManager() : new FitManagerMPI(psize, pid, test);
 	return * _fInstance;
 }
 
