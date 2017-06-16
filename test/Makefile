@@ -1,7 +1,7 @@
 TARGETS = test_pole test_amplitude draw_results test_amplitude_mpi test_minuit_mpi
 LIBS = ../*.o
 LIBPATH = -I../include -L../
-CXX = mpicxx
+CXX = g++
 
 root_flags :=`root-config --cflags --libs` -lgsl -lgslcblas -lMinuit -fopenmp
 

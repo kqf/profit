@@ -4,8 +4,6 @@
 #include "FitManager.h"
 
 
-// TODO: Add separate test for the FitManagerMPI
-
 class FitManagerMPI : public FitManager
 {
 

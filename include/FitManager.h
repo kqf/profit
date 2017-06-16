@@ -16,6 +16,7 @@
 #include <cassert>
 
 #include <TMinuit.h>
+#define MPI_VERSION 2
 
 
 class FitManager

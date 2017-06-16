@@ -16,24 +16,29 @@
 #include "FitManager.h"
 #include "PhysicalProcess.h"
 
+// NB: MPI_VERSION is defined in FitManager.h
+// 
 
+#ifdef MPI_VERSION
 #include <mpi.h>
+#endif
+
 using namespace std;
-
-
 int main(int argc, char** argv)
 {
-
-	// MPI_Init(NULL, NULL);
-
 	int pool_size = 0;
 	int procid = 0;
 
+#ifdef MPI_VERSION
+	MPI_Init(NULL, NULL);
+
 	// Get the number of processes
-	// MPI_Comm_size(MPI_COMM_WORLD, &pool_size);
+	MPI_Comm_size(MPI_COMM_WORLD, &pool_size);
 
 	// Get the rank of the process
-	// MPI_Comm_rank(MPI_COMM_WORLD, &procid);
+	MPI_Comm_rank(MPI_COMM_WORLD, &procid);
+	std::cout << "Starting analysis on " << pool_size << " processes. " << endl;
+#endif
 
 
 	TString path = (argc > 1) ? argv[1] : "/afs/cern.ch/user/o/okovalen/private/bitp/regge-amplitude-analysis/";
@@ -69,7 +74,10 @@ int main(int argc, char** argv)
 	timer.Stop();
 	std::cout << "It takes " << timer.RealTime() / 60 << " min to calculate chi^2." << std::endl;
 
-	// MPI_Finalize();
+#ifdef MPI_VERSION
+	MPI_Finalize();
+#endif
+
 	return 0;
 }
 
