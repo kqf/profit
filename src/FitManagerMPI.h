@@ -2,6 +2,7 @@
 #define	FITMANAGERMPI_H
 
 #include "FitManager.h"
+#include "Config.h"
 
 
 class FitManagerMPI : public FitManager

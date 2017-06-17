@@ -3,6 +3,7 @@
 
 #include <boost/test/unit_test.hpp>
 #include <iostream>
+#include <fstream>
 
 // -- User headers --
 #include "PhysicalProcess.h"
@@ -14,26 +15,27 @@ namespace tt = boost::test_tools;
 
 using std::cout;
 using std::endl;
+using std::ofstream;
 
 struct Analysis
 {
     FitManager * tManager;
     double tNominal;
     int tProcId;
+    int tPoolSize;
 
-    Analysis(): tManager(0), tNominal(4712.3606378067634), tProcId(-123)
+    Analysis(): tManager(0), tNominal(4712.3606378067634), tProcId(-123), tPoolSize(-1)
     {
-        int pool_size;
 
         MPI_Init(NULL, NULL);
 
         // Get the number of processes
-        MPI_Comm_size(MPI_COMM_WORLD, &pool_size);
+        MPI_Comm_size(MPI_COMM_WORLD, &tPoolSize);
 
         // Get the rank of the process
         MPI_Comm_rank(MPI_COMM_WORLD, &tProcId);
 
-        tManager = &FitManager::GetFitManager(pool_size, tProcId);
+        tManager = &FitManager::GetFitManager(tPoolSize, tProcId);
 
         PhysicalProcess input_array[] =
         {
@@ -70,7 +72,7 @@ BOOST_AUTO_TEST_CASE(Chi2MPI)
     BOOST_TEST_MESSAGE("CURRENT PROC ID ");
     BOOST_TEST_MESSAGE(tProcId);
 
-    
+
     double total_mpi_time = 0;
 
     total_mpi_time -= MPI_Wtime();
@@ -83,6 +85,11 @@ BOOST_AUTO_TEST_CASE(Chi2MPI)
         return;
 
     BOOST_TEST(diff == 0.0, tt::tolerance(0.00001));
+
+    // Save the parameters to file
+    ofstream ofile("execution_time.txt", std::ios::out | std::ios::app);
+    ofile << tPoolSize << "\t" << total_mpi_time << endl;
+    ofile.close();
 }
 
 

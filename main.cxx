@@ -15,8 +15,9 @@
 
 #include "FitManager.h"
 #include "PhysicalProcess.h"
+#include "Config.h"
 
-// NB: MPI_VERSION is defined in FitManager.h
+// NB: MPI_VERSION is defined in Config.h
 // 
 
 #ifdef MPI_VERSION
