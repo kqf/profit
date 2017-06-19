@@ -18,3 +18,7 @@ exec-test-%: %
 
 clean:
 	rm *.test
+
+	
+check-performance:
+	./run-performance.sh
