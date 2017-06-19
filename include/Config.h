@@ -1,1 +1,3 @@
-#define MPI_VERSION 2
+#ifndef HEADERFILE_H
+#define MPI_VERSION 3
+#endif
