@@ -69,8 +69,8 @@ double FitManagerMPI::chi2( double * parameters)
 			const DataPoint & p = fProcesses[i].experimentalPoints[j];
 			// if(p.ignore) continue;
 
-			// std::cout << " Calculating >> " << std::endl;
-			double delta = ValueInPoint(p);
+			// std::cout << " Calculating >> " << i <<  " " << j << " "  << computor << std::endl;
+			double delta = ValueInPoint(computor, p);
 
 
 			// std::cout << std::setw(8) << p.energy << "\t"
@@ -103,12 +103,13 @@ double FitManagerMPI::chi2( double * parameters)
 	return result;
 }
 
-double FitManagerMPI::ValueInPoint(const DataPoint & p)
+double FitManagerMPI::ValueInPoint(TheoreticalModel & model, const DataPoint & p)
 {
 	if (fTest)
 		return 1.;
 
-	double y =  fModel.GetTheoreticalValue(p.energy, p.t);
+	double y =  model.GetTheoreticalValue(p.energy, p.t);
 	double delta =  (p.observable - y) / p.error ;
 	return delta;
+	
 }

@@ -13,7 +13,7 @@ public:
     FitManagerMPI(int psize, int pid, bool test); 
 
 protected:
-    double ValueInPoint(const DataPoint & p);
+    double ValueInPoint(TheoreticalModel & model, const DataPoint & p);
     FitManagerMPI(const FitManagerMPI& orig) {}
     FitManagerMPI & operator=(const FitManagerMPI &) {}
 
