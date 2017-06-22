@@ -6,7 +6,7 @@ CXX = mpic++
 
 root_flags :=`root-config --cflags --libs` -lgsl -lgslcblas -lMinuit -fopenmp
 
-all: $(test)
+all: $(TARGETS)
 
 TARGETS: $(TARGETS) $(addprefix exec-test-,$(TARGETS))
 

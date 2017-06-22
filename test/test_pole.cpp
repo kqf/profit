@@ -42,8 +42,8 @@ BOOST_AUTO_TEST_CASE(Odd)
     auto a = pole.Amplitude(s, t, true);
     auto diff = a - nominal;
 
-    BOOST_TEST(diff.imag() == 0.0, tt::tolerance(0.00001));
-    BOOST_TEST(diff.real() == 0.0, tt::tolerance(0.00001));
+    BOOST_CHECK_CLOSE(diff.imag(),  0.0, 0.00001);
+    BOOST_CHECK_CLOSE(diff.real(),  0.0, 0.00001);
 }
 
 BOOST_AUTO_TEST_CASE(Even)
@@ -53,8 +53,8 @@ BOOST_AUTO_TEST_CASE(Even)
     auto a = pole.Amplitude(s, t, false);
     auto diff = a - nominal;
 
-    BOOST_TEST(diff.imag() == 0.0, tt::tolerance(0.00001));
-    BOOST_TEST(diff.real() == 0.0, tt::tolerance(0.00001));
+    BOOST_CHECK_CLOSE(diff.imag(),  0.0, 0.00001);
+    BOOST_CHECK_CLOSE(diff.real(),  0.0, 0.00001);
  }
 
 BOOST_AUTO_TEST_SUITE_END()

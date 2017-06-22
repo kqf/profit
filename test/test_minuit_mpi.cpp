@@ -86,8 +86,8 @@ BOOST_AUTO_TEST_CASE(MINUIT_MPI)
 
     if (tProcId != 0)
         return;
-
-    BOOST_TEST(diff == 0.0, tt::tolerance(0.00001));
+    
+    BOOST_CHECK_CLOSE(diff, 0.0, 0.00001);
 }
 
 

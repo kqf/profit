@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE(Chi2)
 {
     double diff = nominal - manager.PerformMinimization("devnullparameters.in", 0, 0);
 
-    BOOST_TEST(diff == 0.0, tt::tolerance(0.00001));
+    BOOST_CHECK_CLOSE(diff, 0.0, 0.00001);
 }
 
 
