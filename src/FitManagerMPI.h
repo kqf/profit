@@ -13,6 +13,7 @@ public:
     FitManagerMPI(int psize, int pid, bool test); 
 
 protected:
+    void IndecesForProcess(const PhysicalProcess & proc, int & start, int & stop) const;
     double ValueInPoint(TheoreticalModel & model, const DataPoint & p);
     FitManagerMPI(const FitManagerMPI& orig) {}
     FitManagerMPI & operator=(const FitManagerMPI &) {}
