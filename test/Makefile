@@ -4,7 +4,7 @@ LIBS = ../*.o
 LIBPATH = -I../include -L../
 CXX = mpic++
 
-root_flags :=`root-config --cflags --libs` -lgsl -lgslcblas -lMinuit -fopenmp
+root_flags :=`root-config --cflags --libs` -lgsl -lgslcblas -lMinuit -fopenmp --std=c++11
 
 all: $(TARGETS)
 

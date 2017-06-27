@@ -1,7 +1,7 @@
 source_dirs := src
 include_dirs := include
 search_wildcard := $(addsuffix /*.cc,$(source_dirs))
-root_flags :=`root-config --cflags --libs`
+root_flags :=`root-config --cflags --libs` --std=c++11
 CC = mpicxx
 
 profit: $(notdir $(patsubst   %.cc,%.o,$(wildcard   $(search_wildcard))))

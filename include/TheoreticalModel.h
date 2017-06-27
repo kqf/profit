@@ -1,60 +1,53 @@
-/* 
- * File:   TheoreticalModel.h
- * Author: sha
- *
- * Created on May 4, 2014, 3:20 PM
- */
-
 #ifndef THEORETICALMODEL_H
-#define	THEORETICALMODEL_H
+#define THEORETICALMODEL_H
 
 #include <complex>
 #include <vector>
 #include <cassert>
 
-#include <gsl/gsl_integration.h>
 #include <gsl/gsl_sf_bessel.h>
 
 #include "ReggePole.h"
+#include "BesselTransform.h"
 
 // Transformation and it's inverse
+//
+double g(double t, void * params);
+double f (double b, void * params);
 
-double g(double x, void * params);
-double f (double x, void * params);
-
-class TheoreticalModel {
+class TheoreticalModel
+{
 private:
-    typedef std::complex<double > complexd; 
+    typedef std::complex<double > complexd;
 public:
-    TheoreticalModel():npars(0) {} ;
-//    TheoreticalModel(TheoreticalModel & other);
-//    TheoreticalModel & operator=(const TheoreticalModel & other);
+    TheoreticalModel(): npars(0) {} ;
+    TheoreticalModel(const double * , int);
 
-    TheoreticalModel(const double * ,int);
 
-    void SetParameters(const double *); 
-    void SetProcessType(const int & t)  { processType = t; }
+    void SetParameters(const double *);
+    void SetProcessType(const int & t)
+    {
+        fProcessId = t;
+        fOddProcess = fProcessId % 10;
+    }
 
-    double GetTheoreticalValue(double  x, double  y); 
-    complexd GetA(bool); 
-    double GetH(double); 
-    double Geta(double); 
-    complexd Unitarize(const complexd &); 
+    double GetTheoreticalValue(double  x, double  y) const;
+    complexd GetA(double s, double t, bool imag) const;
+    double GetH(double b, double s, double t, bool imag = true) const;
+    double Geta(double b, double s, double t, bool imag = true) const;
+    complexd Unitarize(const complexd &) const;
 
-    double BesselTransform(double (*function)(double, void *), bool whole_range = true);
-    double DrawFunction(double * x, double * par); 
-    int npars; 
+    double DrawFunction(double * x, double * par);
+    int npars;
 private:
     void PrintFailure(const int &);
-    std::vector<AbstractPole * > poles; 
-    complexd ilambda; 
-    
-    double b, s, t; 
-    int processType; 
-    bool calculateImagH, calculateImagh; 
-    bool skipEvaluation; // flag as true in PrintFailure(), skip as false in SetParameters
-                          // this should save a lot of time.
+    std::vector<AbstractPole * > fPoles;
+    complexd fIlambda;   // i times lambda
+
+    int fProcessId;
+    bool fOddProcess;
+    bool fSkipEvaluation; // flag as true in PrintFailure(), skip as false in SetParameters
 };
 
-#endif	/* THEORETICALMODEL_H */
+#endif  /* THEORETICALMODEL_H */
 
