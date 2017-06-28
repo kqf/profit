@@ -38,7 +38,7 @@ double FitManagerMPI::chi2( double * parameters)
 	{
 
 		MPI_Barrier(MPI_COMM_WORLD);
-		MPI_Bcast(parameters, fModel.npars, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+		MPI_Bcast(parameters, fModel.fNpars, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 		MPI_Barrier(MPI_COMM_WORLD);
 
 		fModel.SetParameters(parameters);

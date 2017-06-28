@@ -11,56 +11,54 @@
 #include "NonlinearPoleT2V3.h"
 
 #include <iostream>
+#include <algorithm>
 
 #include <gsl/gsl_errno.h>
 
-TheoreticalModel::TheoreticalModel(const double * par, int n): npars(n)
+TheoreticalModel::TheoreticalModel(const double * par, int n): fNpars(n)
 {
     gsl_set_error_handler_off();
-    SetParameters(par);
+
+    double nu = par[0];
+    int offset = 1;
+
+    // TODO: Use  MakePoles 
+    // 
+    
+    AbstractPole * pomeron1 = new NonlinearPoleT2V3(par, offset);
+    AbstractPole * pomeron2 = new NonlinearPoleT2V3(par, offset);
+    AbstractPole * odderon1 = new NonlinearPoleT2V3(par, offset);
+
+    fPoles = ReggePole::MakePoles(par + offset , fNpars - 1 - offset);
+    std::reverse(fPoles.begin(), fPoles.end());
+    // fPoles = ReggePole::MakePoles(par + offset , 0);
+    fPoles.push_back(odderon1);
+    fPoles.push_back(pomeron2);
+    fPoles.push_back(pomeron1);
+
+    fIlambda = complexd(0, 2 * par[fNpars - 1]);
 }
 
 void TheoreticalModel::SetParameters(const double * par)
 {
-    // TODO: Improve this part somehow
-    // 
+    int offset = 1;
 
-    double nu = par[0];
-    int skipped = 1;
-    // int skipped = 0;
+    for (std::vector<AbstractPole *>::reverse_iterator i = fPoles.rbegin(); i != fPoles.rend(); ++i)
+        (*i)->SetParameters(par, offset);
 
-    AbstractPole * pomeron1 = NonlinearPoleT2V3::MakeNonlinearPole(par + skipped, nu);
-    skipped = skipped + NonlinearPoleT2V3::nImputParamets - 1;
+    std::cout << "Offset >> " << offset << std::endl;
 
-    AbstractPole * pomeron2 = NonlinearPoleT2V3::MakeNonlinearPole(par + skipped, nu);
-    skipped = skipped + NonlinearPoleT2V3::nImputParamets - 1;
 
-    // std::cout << pomeron1->Amplitude(0.194200e+02 * 0.194200e+02, -0.389564e-02, false) << std::endl;
-    // return;
+    fIlambda = complexd(0, 2 * par[fNpars - 1]);
 
-    AbstractPole * odderon1 = NonlinearPoleT2V3::MakeNonlinearPole(par + skipped, 0);
-    skipped = skipped + NonlinearPoleT2V3::nImputParamets - 1;
-
-    fPoles = ReggePole::MakePoles(par + skipped , npars - 1 - skipped);
-    // fPoles = ReggePole::MakePoles(par + skipped , 0);
-    fPoles.push_back(pomeron1);
-    fPoles.push_back(pomeron2);
-    // fPoles.push_back(pomeron3);
-
-    fPoles.push_back(odderon1);
-    // fPoles.push_back(odderon2);
-
-    // TODO: check correctness of 2 * i * lambda
-    fIlambda = complexd(0, 2 * par[npars - 1]);
-
-    // We set new parameters, result is interesting
-    // We do need evaluation
+    // // We set new parameters, the result is interesting
+    // // We do need evaluation
     fSkipEvaluation = false;
 }
 
 double TheoreticalModel::GetTheoreticalValue(double  energy , double  transverse_momentum) const
 {
-    assert(npars != 0 && "Parameters are not set");
+    assert(fNpars != 0 && "Parameters are not set");
     if (fSkipEvaluation)
         return 0.; // our model contains bad parameters -- just quit
 

@@ -1,7 +1,7 @@
-/* 
+/*
  * File:   QuadraticPole.cc
  * Author: sha
- * 
+ *
  * Created on May 19, 2014, 8:01 PM
  */
 
@@ -21,14 +21,28 @@ QuadraticPole::complexd QuadraticPole::PureAmplitude(const double & s, const dou
 // n -- control number of poles in a model
 std::vector<AbstractPole * > QuadraticPole::MakePoles(const double * p, const int & n)
 {
-    assert((n % nImputParamets == 0) && "Trying to pass wrong amount of parameters"); 
+    assert((n % kInputParameters == 0) && "Trying to pass wrong amount of parameters");
 
-    std::vector<AbstractPole  * > poles; 
-    for(int i = 0; i < n; i += nImputParamets)
-	poles.push_back( (new QuadraticPole(p[i], p[i + 1], p[i + 2], p[i + 3], p[i + 4], p[i + 5] < 0)) ); 
+    std::vector<AbstractPole  * > poles;
+    for (int i = 0; i < n; i += kInputParameters)
+        poles.push_back( (new QuadraticPole(p[i], p[i + 1], p[i + 2], p[i + 3], p[i + 4], p[i + 5] < 0)) );
 
-    return poles; 
+    return poles;
 }
 
 
+
+void QuadraticPole::SetParameters(const double * pars, int & offset)
+{
+    g     = pars[offset];
+    a0  = pars[offset + 1];
+    ap     = pars[offset + 2];
+    B      = pars[offset + 3];
+    app      = pars[offset + 4];
+    // Don't change the internal properties
+    // odd = ...
+
+    // Update the offset value
+    offset += kInputParameters;
+}
 

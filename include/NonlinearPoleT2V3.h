@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   NonlinearPoleT2V3.h
  * Author: sha
  *
@@ -6,7 +6,7 @@
  */
 
 #ifndef NONLINEARPOLET2V3_H
-#define	NONLINEARPOLET2V3_H
+#define NONLINEARPOLET2V3_H
 
 #include <iostream>
 #include <iomanip>
@@ -17,55 +17,74 @@
 
 #include "AbstractPole.h"
 
-class NonlinearPoleT2V3 : public AbstractPole {
+class NonlinearPoleT2V3 : public AbstractPole
+{
 private:
-    typedef std::complex<double > complexd; 
+	typedef std::complex<double > complexd;
 
 public:
-//    complexd Amplitude(const double & s, const double & t, bool) const; 
-    static std::vector<AbstractPole *> MakePoles(const double *, const int &); 
-    static AbstractPole * MakeNonlinearPole(const double * p, const double & nu);
+//    complexd Amplitude(const double & s, const double & t, bool) const;
+	static std::vector<AbstractPole *> MakePoles(const double *, const int &);
 
-    virtual void PrintParameters() const {          std::cout << "a0   " << std::setw(8) << a0
-                                                              << "\tgamma" << std::setw(8) << gamma
-                                                              << "\ttr   " << std::setw(8) << tr
-                                                              << "\tg    " << std::setw(8) << g
-                                                              << "\tB    " << std::setw(8) << B
-                                                              << "\tTau  " << std::setw(8) << Tau 
-                                                              << "\tC    " << std::setw(8) << C
-                                                              << "\teta  " << std::setw(8) << eta 
-                                                              << "\tnu   " << std::setw(8) << nu
-                                                              << "\tOdd  " << std::setw(8) << isOdd << std::endl;
-                                         }
+	virtual void PrintParameters() const
+	{
+		std::cout << "a0   " << std::setw(8) << a0
+		          << "\tgamma" << std::setw(8) << gamma
+		          << "\ttr   " << std::setw(8) << tr
+		          << "\tg    " << std::setw(8) << g
+		          << "\tB    " << std::setw(8) << B
+		          << "\tTau  " << std::setw(8) << Tau
+		          << "\tC    " << std::setw(8) << C
+		          << "\teta  " << std::setw(8) << eta
+		          << "\tnu   " << std::setw(8) << nu
+		          << "\tOdd  " << std::setw(8) << isOdd << std::endl;
+	}
 
-// private:
-    // this is number of input parameters in constructor!
-    // if you modify the constructor --- you should modify 
-    // this number too !!
-    enum {nImputParamets = 10}; 
+	virtual void SetParameters(const double * pars, int & offset);
 
-public:
-    NonlinearPoleT2V3(const double & a, const double & b,
-                      const double & c, const double & d,
-                      const double & e, const double & f,
-                      const double & j, const double & k, 
-                      const double & l, bool odd):
+	NonlinearPoleT2V3(const double & a, const double & b,
+	                  const double & c, const double & d,
+	                  const double & e, const double & f,
+	                  const double & j, const double & k,
+	                  const double & l, bool odd):
 
-    a0(a), gamma(b), tr(c), g(d), B(e), Tau(f), C(j), eta(k), nu(l), AbstractPole(odd) {/*PrintParameters();*/}
+		a0(a), gamma(b), tr(c), g(d), B(e), Tau(f), C(j), eta(k), nu(l), AbstractPole(odd) {/*PrintParameters();*/}
+
+	NonlinearPoleT2V3(const double * p, int & offset):
+		a0(   p[offset]),
+		gamma(p[offset + 1]),
+		tr(   p[offset + 2]),
+		g(    p[offset + 3]),
+		B(    p[offset + 4]),
+		Tau(  p[offset + 5]),
+		C(    p[offset + 6]),
+		eta(  p[offset + 7]),
+		nu(   !(p[offset + 8] < 0) ? 0 : p[0]),
+		AbstractPole(p[offset + 8] < 0)
+	{
+		offset += kInputParameters - 1;
+	}
+
+protected:
+	// this is number of input parameters in constructor!
+	// if you modify the constructor --- you should modify
+	// this number too !!
+	static const int kInputParameters = 10;
+
 
 private:
-    
-    virtual complexd PureAmplitude(const double & s, const double & t) const ; 
 
-    double a0;
-    double gamma;
-    double tr;
-    double g;
-    double Tau; 
-    double B; 
-    double C; 
-    double nu;
-    double eta;
+	virtual complexd PureAmplitude(const double & s, const double & t) const ;
+
+	double a0;
+	double gamma;
+	double tr;
+	double g;
+	double Tau;
+	double B;
+	double C;
+	double nu;
+	double eta;
 };
 
-#endif	/* NONLINEARPOLET2V3_H */
+#endif  /* NONLINEARPOLET2V3_H */

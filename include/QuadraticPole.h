@@ -32,11 +32,12 @@ public:
                                                     << "\tB "   << std::setw(8) << B << std::endl;
                                          }
 
+    virtual void SetParameters(const double * pars, int & offset);
 private:
     // this is number of input parameters in constructor!
     // if you modify the constructor --- you should modify 
     // this number too !!
-    enum {nImputParamets = 6}; 
+    static const int kInputParameters = 6;
 
 public:
     QuadraticPole(const double & a, const double & b,

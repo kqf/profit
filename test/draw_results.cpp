@@ -54,7 +54,7 @@ public:
         SetFitParameters();
 
         // Initialize Fit function only after the fManager setup.
-        fFitFunction = TF1("fFitFunction", fManager.Model(), &TheoreticalModel::DrawFunction, 20, 3000, fManager.Model()->npars + 2);
+        fFitFunction = TF1("fFitFunction", fManager.Model(), &TheoreticalModel::DrawFunction, 20, 3000, fManager.Model()->fNpars + 2);
         
         BOOST_TEST_MESSAGE("Setup the plotter");
     }

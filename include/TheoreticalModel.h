@@ -20,7 +20,7 @@ class TheoreticalModel
 private:
     typedef std::complex<double > complexd;
 public:
-    TheoreticalModel(): npars(0) {} ;
+    TheoreticalModel(): fNpars(0) {} ;
     TheoreticalModel(const double * , int);
 
 
@@ -38,7 +38,7 @@ public:
     complexd Unitarize(const complexd &) const;
 
     double DrawFunction(double * x, double * par);
-    int npars;
+    int fNpars;
 private:
     void PrintFailure(const int &);
     std::vector<AbstractPole * > fPoles;

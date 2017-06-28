@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   ReggePole.h
  * Author: sha
  *
@@ -6,7 +6,7 @@
  */
 
 #ifndef REGGEPOLE_H
-#define	REGGEPOLE_H
+#define REGGEPOLE_H
 
 #include <iostream>
 #include <complex>
@@ -15,35 +15,40 @@
 
 #include "AbstractPole.h"
 
-class ReggePole : public AbstractPole {
+class ReggePole : public AbstractPole
+{
 private:
-    typedef std::complex<double > complexd; 
+    typedef std::complex<double > complexd;
 
 public:
-//    complexd Amplitude(const double & s, const double & t, bool) const; 
-    static std::vector<AbstractPole *> MakePoles(const double *, const int &); 
-    virtual void PrintParameters() const { std::cout << "g  "   << g 
-                                                    << " a0 "  << a0
-                                                    << " ap "  << ap
-                                                    << " B "   << B << std::endl;
-                                         }
+//    complexd Amplitude(const double & s, const double & t, bool) const;
+    static std::vector<AbstractPole *> MakePoles(const double *, const int &);
+    virtual void PrintParameters() const
+    {
+        std::cout << "g  "   << g
+                  << " a0 "  << a0
+                  << " ap "  << ap
+                  << " B "   << B << std::endl;
+    }
+    virtual void SetParameters(const double * pars, int & offset);
+
 private:
     // this is number of input parameters in constructor!
-    // if you modify the constructor --- you should modify 
+    // if you modify the constructor --- you should modify
     // this number too !!
-    enum {nImputParamets = 5}; 
+    static const int kInputParameters = 5;
 
     ReggePole(const double & a, const double & b,
               const double & c, const double & d, const bool & odd):
-	      a0(a), ap(b), g(c),  B(d), AbstractPole(odd) {}
+        a0(a), ap(b), g(c),  B(d), AbstractPole(odd) {}
 
-    virtual complexd PureAmplitude(const double & s, const double & t) const ; 
+    virtual complexd PureAmplitude(const double & s, const double & t) const ;
 
     double a0;
     double ap;
     double g;
-    double B; 
+    double B;
 };
 
-#endif	/* REGGEPOLE_H */
+#endif  /* REGGEPOLE_H */
 
