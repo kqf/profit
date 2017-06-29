@@ -2,7 +2,6 @@
 #define THEORETICALMODEL_H
 
 #include <complex>
-#include <vector>
 #include <cassert>
 
 #include <gsl/gsl_sf_bessel.h>
@@ -19,6 +18,7 @@ class TheoreticalModel
 {
 private:
     typedef std::complex<double > complexd;
+
 public:
     TheoreticalModel(): fNpars(0) {} ;
     TheoreticalModel(const double * , int);
@@ -41,7 +41,7 @@ public:
     int fNpars;
 private:
     void PrintFailure(const int &);
-    std::vector<AbstractPole * > fPoles;
+    AbstractPole::Poles fPoles;
     complexd fIlambda;   // i times lambda
 
     int fProcessId;

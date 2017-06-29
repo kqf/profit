@@ -12,23 +12,19 @@
 #include <iomanip>
 
 #include <complex>
-#include <vector>
 #include <cassert>
 
 #include "AbstractPole.h"
 
 class NonlinearPoleT2V3 : public AbstractPole
 {
-private:
-	typedef std::complex<double > complexd;
-
 public:
 //    complexd Amplitude(const double & s, const double & t, bool) const;
-	static std::vector<AbstractPole *> MakePoles(const double *, const int &);
+	static Poles MakePoles(const double *, const int &, int &);
 
 	virtual void PrintParameters() const
 	{
-		std::cout << "a0   " << std::setw(8) << a0
+		std::cout << "jja0   " << std::setw(8) << a0
 		          << "\tgamma" << std::setw(8) << gamma
 		          << "\ttr   " << std::setw(8) << tr
 		          << "\tg    " << std::setw(8) << g
@@ -59,13 +55,12 @@ public:
 		Tau(  p[offset + 5]),
 		C(    p[offset + 6]),
 		eta(  p[offset + 7]),
-		nu(   !(p[offset + 8] < 0) ? 0 : p[0]),
+		nu(   (p[offset + 8] < 0) ? 0 : p[0]),
 		AbstractPole(p[offset + 8] < 0)
 	{
 		offset += kInputParameters - 1;
 	}
 
-protected:
 	// this is number of input parameters in constructor!
 	// if you modify the constructor --- you should modify
 	// this number too !!

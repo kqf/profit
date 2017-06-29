@@ -19,13 +19,16 @@ QuadraticPole::complexd QuadraticPole::PureAmplitude(const double & s, const dou
 
 // This funciton creates needed number of poles:
 // n -- control number of poles in a model
-std::vector<AbstractPole * > QuadraticPole::MakePoles(const double * p, const int & n)
+AbstractPole::Poles QuadraticPole::MakePoles(const double * p, const int & n)
 {
     assert((n % kInputParameters == 0) && "Trying to pass wrong amount of parameters");
 
-    std::vector<AbstractPole  * > poles;
+    AbstractPole::Poles poles;
     for (int i = 0; i < n; i += kInputParameters)
-        poles.push_back( (new QuadraticPole(p[i], p[i + 1], p[i + 2], p[i + 3], p[i + 4], p[i + 5] < 0)) );
+    {
+        std::shared_ptr<AbstractPole> pole(new QuadraticPole(p[i], p[i + 1], p[i + 2], p[i + 3], p[i + 4], p[i + 5] < 0));
+        poles.push_back(pole);
+    }
 
     return poles;
 }

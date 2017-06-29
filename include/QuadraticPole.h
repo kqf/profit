@@ -12,7 +12,6 @@
 #include <iomanip>
 
 #include <complex>
-#include <vector>
 #include <cassert>
 
 #include "AbstractPole.h"
@@ -23,7 +22,7 @@ private:
 
 public:
 //    complexd Amplitude(const double & s, const double & t, bool) const; 
-    static std::vector<AbstractPole *> MakePoles(const double *, const int &); 
+    static AbstractPole::Poles MakePoles(const double *, const int &); 
 
     virtual void PrintParameters() const { std::cout<< "g  "   << std::setw(8) << g 
                                                     << "\ta0 "  << std::setw(8) << a0
@@ -33,7 +32,6 @@ public:
                                          }
 
     virtual void SetParameters(const double * pars, int & offset);
-private:
     // this is number of input parameters in constructor!
     // if you modify the constructor --- you should modify 
     // this number too !!

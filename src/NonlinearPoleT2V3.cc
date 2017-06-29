@@ -30,14 +30,20 @@ NonlinearPoleT2V3::complexd NonlinearPoleT2V3::PureAmplitude(const double & s, c
 
 // This funciton creates needed number of poles:
 // n -- control number of poles in a model
-std::vector<AbstractPole * > NonlinearPoleT2V3::MakePoles(const double * p, const int & n)
-{
-    assert((n % kInputParameters == 0) && "Trying to pass wrong amount of parameters");
+//
+//
 
-    std::vector<AbstractPole  * > poles;
-    for (int i = 0; i < n; i += kInputParameters)
-        poles.push_back( (new NonlinearPoleT2V3(p[i], p[i + 1], p[i + 2], p[i + 3],
-                                                p[i + 4], p[i + 5], p[i + 6], p[i + 7], p[i + 8], p[i + 9] < 0 ) ) );
+AbstractPole::Poles NonlinearPoleT2V3::MakePoles(const double * p, const int & npoles, int & offset)
+{
+    AbstractPole::Poles poles;
+    for (int i = 0; i < npoles; ++i)
+    {
+        AbstractPole * pole = new NonlinearPoleT2V3(p[offset], p[offset + 1], p[offset + 2], p[offset + 3],
+                p[offset + 4], p[offset + 5], p[offset + 6], p[offset + 7], (p[offset + 8] < 0 ? 0 : p[0]), p[offset + 8] < 0 );
+
+        poles.push_back(std::shared_ptr<AbstractPole>(pole));
+        offset += kInputParameters - 1;
+    }
 
     return poles;
 }
@@ -53,7 +59,7 @@ void NonlinearPoleT2V3::SetParameters(const double * pars, int & offset)
     Tau    = pars[offset + 5];
     C      = pars[offset + 6];
     eta    = pars[offset + 7];
-    nu     = (!isOdd) ? 0 : pars[0]; // No offset here
+    nu     = isOdd ? 0 : pars[0]; // No offset here
 
     // Don't change the internal properties
     // odd = ...

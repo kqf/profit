@@ -22,7 +22,6 @@ public:
 
     virtual void SetParameters(const double * pars, int & offset);
 
-private:
     // this is number of input parameters in constructor!
     // if you modify the constructor --- you should modify
     // this number too !! 
@@ -30,6 +29,7 @@ private:
     static const int kInputParameters = 7;
 
 
+private:
     virtual complexd PureAmplitude(const double & s, const double & t) const;
 
     double g;

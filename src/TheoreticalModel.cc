@@ -19,23 +19,26 @@ TheoreticalModel::TheoreticalModel(const double * par, int n): fNpars(n)
 {
     gsl_set_error_handler_off();
 
-    double nu = par[0];
     int offset = 1;
 
-    // TODO: Use  MakePoles 
-    // 
-    
-    AbstractPole * pomeron1 = new NonlinearPoleT2V3(par, offset);
-    AbstractPole * pomeron2 = new NonlinearPoleT2V3(par, offset);
-    AbstractPole * odderon1 = new NonlinearPoleT2V3(par, offset);
+    // TODO: Create a better interface.
+    int nprimaries = 3;
+    int nsecondaries = 2;
 
-    fPoles = ReggePole::MakePoles(par + offset , fNpars - 1 - offset);
-    std::reverse(fPoles.begin(), fPoles.end());
-    // fPoles = ReggePole::MakePoles(par + offset , 0);
-    fPoles.push_back(odderon1);
-    fPoles.push_back(pomeron2);
-    fPoles.push_back(pomeron1);
+    // NB: We have one common parameter nu, therefore: NonlinearPoleT2V3::kInputParameters - 1
+    int requiredParameters = nsecondaries * ReggePole::kInputParameters + nprimaries * (NonlinearPoleT2V3::kInputParameters - 1) + 2; // lambda and nu
+    assert(requiredParameters == fNpars && "Something is wrong. Check your input file."); 
 
+    // Create primary contributions Pomeron(s), Odderon(s)
+    fPoles = NonlinearPoleT2V3::MakePoles(par, nprimaries, offset);
+
+    // Create secondary poles
+    AbstractPole::Poles secondary = ReggePole::MakePoles(par, nsecondaries, offset);
+
+    // Extend the main array of poles
+    fPoles.insert(fPoles.end(), secondary.begin(), secondary.end());
+
+    // Setup Lambda
     fIlambda = complexd(0, 2 * par[fNpars - 1]);
 }
 
@@ -43,11 +46,8 @@ void TheoreticalModel::SetParameters(const double * par)
 {
     int offset = 1;
 
-    for (std::vector<AbstractPole *>::reverse_iterator i = fPoles.rbegin(); i != fPoles.rend(); ++i)
+    for (AbstractPole::Poles::iterator i = fPoles.begin(); i != fPoles.end(); ++i)
         (*i)->SetParameters(par, offset);
-
-    std::cout << "Offset >> " << offset << std::endl;
-
 
     fIlambda = complexd(0, 2 * par[fNpars - 1]);
 
