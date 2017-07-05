@@ -66,6 +66,19 @@ qstat -j <job id>
 qdel 123456
 ```
 
+The configuration for the CIS cluster
+```bash
+qsub -l nodes=20:ppn=40 -l mem=1GB -q i14d cnonlinear-trajectory.sh
+
+# check status
+qstat -j <job id>
+
+# delete 
+qdel 123456
+```
+
+
+
 
 ## Warning(s)##
 Remember to copy your `.root` files before submitting your jobs.

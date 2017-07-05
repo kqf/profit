@@ -4,6 +4,7 @@ NPROC="$(nproc)"
 WORKDIR=/mnt/home/okovalenko/profit
 
 cd $WORKDIR
+module load openmpi
 module load root
 make
 ./profit $WORKDIR/

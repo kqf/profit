@@ -12,3 +12,6 @@ someoutput
 *.test
 *.sublime*
 *.txt
+t-nonlinear.e*
+t-nonlinear.o*
+execution_time.txt*
