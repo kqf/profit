@@ -1,4 +1,4 @@
-TARGETS = test_pole test_amplitude draw_results test_amplitude_mpi test_minuit_mpi
+TARGETS = test_pole test_amplitude draw_results test_amplitude_mpi test_minuit_mpi test_parameters
 SOURCES = ../src/*.cc ../include/*.h
 LIBS = ../*.o
 LIBPATH = -I../include -L../
