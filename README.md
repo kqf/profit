@@ -1,7 +1,6 @@
-Amplitude analysis:  
-=====================================
+## PRogram for FITting (profit) [![Build Status](https://travis-ci.com/kqf/profit.svg?branch=master)](https://travis-ci.com/kqf/profit) 
 
-Performs minimization of `A(s, t)` amplitude function.
+Performs minimization of `A(s, t)` hadron amplitude.
 
 ## Run ##
 This par remains the same for all the machines.
